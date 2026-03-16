@@ -35,8 +35,8 @@ class Player:
             world.Transform(pos=pos, anchor=(0.5, 0.5)),
             world.ShapeRenderer(shape=self._shape, filling_color=(220, 80, 80)),
             world.Collider(shape=self._shape),
-            world.RigidBody(mass=100.0, friction=0.8, restitution=0.2, linear_damping=0.1),
-            world.GroundSensor(threshold=0.65)
+            world.RigidBody(mass=100.0, friction=0.8, restitution=0.5, linear_damping=0.0),
+            world.GroundSensor(threshold=0.2, max_climb_angle=90)
         )
         world_.add_entity(self._entity)
 
