@@ -30,21 +30,21 @@ class Player:
     MAX_SPEED  = 10.0
 
     def __init__(self, world_, pos):
-        self._shape = pv.shape.Capsule(15, 90)
-        self._animation = pv.asset.Animation.from_folder("assets/", prefix="walking_", framerate=8, height=90)
+        self._shape = pv.shape.Capsule(13, 86)
+        self._animation = pv.asset.Animation.from_folder("assets/", prefix="running", framerate=8, scale_factor=1.5)
         self._entity = world.Entity(
             world.Transform(pos=pos, anchor=(0.5, 0.0)),
-            world.SpriteRenderer(image=pv.asset.Image("assets/player.png", height=90), z=15),
+            world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", scale_factor=1.5), z=15),
             world.Animator(),
             world.ShapeRenderer(shape=self._shape, filling_color=(220, 80, 80)),
             world.Collider(shape=self._shape),
-            world.RigidBody(mass=50.0, friction=0.35, restitution=0.1, linear_damping=0.05),
-            world.GroundSensor(threshold=0.2, ground_damping=3.0)
+            world.RigidBody(mass=50.0, friction=0.35, restitution=0.1),
+            world.GroundSensor(threshold=0.2, ground_damping=100.0)
         )
         world_.add_entity(self._entity)
         
         self._animator: world.Animator = self._entity.get(world.Animator)
-        self._animator.register(pv.request.AnimationRequest(self._animation, loop=False, condition=self.is_walking))
+        self._animator.register(pv.request.AnimationRequest(self._animation, loop=True, cutable=True, condition=self.is_running))
 
         self._direction = "right"
 
@@ -85,8 +85,8 @@ class Player:
     def is_grounded(self) -> bool:
         return self.gs.is_grounded()
     
-    def is_walking(self) -> bool:
-        return self.is_grounded() and abs(self.rb.velocity.x) > 0.3
+    def is_running(self) -> bool:
+        return self.is_grounded() and abs(self.rb.velocity.x) > 1.0
 
 # ======================================== STRUCTURE ========================================
 floor_shape = pv.shape.Rect(W * 4, 30)
@@ -185,7 +185,7 @@ ball1 = world.Entity(
     world.Transform(pos=pv.math.Point(-400.0, 300.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=ball1_shape, filling_color=(80, 180, 220)),
     world.Collider(shape=ball1_shape),
-    world.RigidBody(mass=10.0, friction=0.1, restitution=0.75)
+    world.RigidBody(mass=10.0, friction=0.2, restitution=0.75)
 )
 main_world.add_entity(ball1)
 ball1.get(world.RigidBody).apply_force(pv.math.Vector(6000.0, 0.0))
@@ -195,7 +195,7 @@ ball2 = world.Entity(
     world.Transform(pos=pv.math.Point(400.0, 300.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=ball2_shape, filling_color=(80, 220, 140)),
     world.Collider(shape=ball2_shape),
-    world.RigidBody(mass=5.0, friction=0.05, restitution=0.8)
+    world.RigidBody(mass=5.0, friction=0.15, restitution=0.8)
 )
 main_world.add_entity(ball2)
 ball2.get(world.RigidBody).apply_force(pv.math.Vector(-4000.0, 2000.0))
@@ -205,7 +205,7 @@ rect1 = world.Entity(
     world.Transform(pos=pv.math.Point(-200.0, 300.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=rect1_shape, filling_color=(180, 80, 220)),
     world.Collider(shape=rect1_shape),
-    world.RigidBody(mass=40.0, friction=0.4, restitution=0.15)
+    world.RigidBody(mass=40.0, friction=0.5, restitution=0.15)
 )
 main_world.add_entity(rect1)
 
@@ -214,7 +214,7 @@ rect2 = world.Entity(
     world.Transform(pos=pv.math.Point(200.0, 350.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=rect2_shape, filling_color=(220, 220, 80)),
     world.Collider(shape=rect2_shape),
-    world.RigidBody(mass=8.0, friction=0.3, restitution=0.3)
+    world.RigidBody(mass=8.0, friction=0.4, restitution=0.3)
 )
 main_world.add_entity(rect2)
 
@@ -223,7 +223,7 @@ ellipse = world.Entity(
     world.Transform(pos=pv.math.Point(0.0, 350.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=ellipse_shape, filling_color=(80, 220, 220)),
     world.Collider(shape=ellipse_shape),
-    world.RigidBody(mass=200.0, friction=0.1, restitution=0.6)
+    world.RigidBody(mass=200.0, friction=0.25, restitution=0.6)
 )
 main_world.add_entity(ellipse)
 ellipse.get(world.RigidBody).apply_force(pv.math.Vector(2000.0, 0.0))
@@ -233,7 +233,7 @@ hex1 = world.Entity(
     world.Transform(pos=pv.math.Point(100.0, 350.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=hex1_shape, filling_color=(220, 80, 180)),
     world.Collider(shape=hex1_shape),
-    world.RigidBody(mass=18.0, friction=0.3, restitution=0.35)
+    world.RigidBody(mass=18.0, friction=0.45, restitution=0.35)
 )
 main_world.add_entity(hex1)
 
@@ -242,7 +242,7 @@ tri1 = world.Entity(
     world.Transform(pos=pv.math.Point(-100.0, 350.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=tri1_shape, filling_color=(180, 220, 80)),
     world.Collider(shape=tri1_shape),
-    world.RigidBody(mass=12.0, friction=0.15, restitution=0.4)
+    world.RigidBody(mass=12.0, friction=0.3, restitution=0.4)
 )
 main_world.add_entity(tri1)
 tri1.get(world.RigidBody).apply_force(pv.math.Vector(3000.0, 1000.0))
