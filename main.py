@@ -26,21 +26,25 @@ main_scene.add_layer(world_layer)
 # ======================================== PLAYER ========================================
 class Player:
     MOVE_FORCE = 3000.0
-    JUMP_FORCE = 35000.0
+    JUMP_FORCE = 500.0
     MAX_SPEED  = 10.0
 
     def __init__(self, world_, pos):
-        self._image = pv.asset.Image("player.png", height=90)
         self._shape = pv.shape.Capsule(15, 90)
+        self._animation = pv.asset.Animation.from_folder("assets/", prefix="walking_", framerate=8, height=90)
         self._entity = world.Entity(
             world.Transform(pos=pos, anchor=(0.5, 0.0)),
-            world.SpriteRenderer(self._image, z=15),
+            world.SpriteRenderer(image=pv.asset.Image("assets/player.png", height=90), z=15),
+            world.Animator(),
             world.ShapeRenderer(shape=self._shape, filling_color=(220, 80, 80)),
             world.Collider(shape=self._shape),
             world.RigidBody(mass=50.0, friction=0.35, restitution=0.1, linear_damping=0.05),
             world.GroundSensor(threshold=0.2, ground_damping=3.0)
         )
         world_.add_entity(self._entity)
+        
+        self._animator: world.Animator = self._entity.get(world.Animator)
+        self._animator.register(pv.request.AnimationRequest(self._animation, loop=False, condition=self.is_walking))
 
         self._direction = "right"
 
@@ -76,10 +80,13 @@ class Player:
 
     def jump(self):
         if self.is_grounded():
-            self.rb.apply_force(pv.math.Vector(0.0, self.JUMP_FORCE))
+            self.rb.apply_impulse(pv.math.Vector(0.0, self.JUMP_FORCE))
 
     def is_grounded(self) -> bool:
         return self.gs.is_grounded()
+    
+    def is_walking(self) -> bool:
+        return self.is_grounded() and abs(self.rb.velocity.x) > 0.3
 
 # ======================================== STRUCTURE ========================================
 floor_shape = pv.shape.Rect(W * 4, 30)
@@ -250,12 +257,16 @@ pv.inputs.add_listener(pv.key.D, player.move_right, repeat=True)
 
 # ======================================== UPDATE ========================================
 def on_update(dt: float):
-    camera.follow(player.entity)
-
+    """Boucle principale"""
+    ...
+    
 # ======================================== SYSTÈMES ========================================
 main_world.add_system(world.RenderSystem())
 main_world.add_system(world.PhysicsSystem(pixels_per_meter=20))
 main_world.add_system(world.GravitySystem())
 main_world.add_system(world.CollisionSystem())
+main_world.add_system(world.AnimationSystem())
+
+camera.follow(player.entity)
 
 pv.run(on_update)
