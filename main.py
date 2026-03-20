@@ -36,10 +36,9 @@ class Player:
             world.Transform(pos=pos, anchor=(0.5, 0.0)),
             world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", scale_factor=1.5), z=15),
             world.Animator(),
-            world.ShapeRenderer(shape=self._shape, filling_color=(220, 80, 80)),
             world.Collider(shape=self._shape),
             world.RigidBody(mass=50.0, friction=0.35, restitution=0.1),
-            world.GroundSensor(threshold=0.2, ground_damping=100.0)
+            world.GroundSensor(threshold=0.2, ground_damping=3.0)
         )
         world_.add_entity(self._entity)
         
