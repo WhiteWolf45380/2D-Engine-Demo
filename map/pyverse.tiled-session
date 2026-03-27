@@ -28,7 +28,7 @@
             "scaleInEditor": 3
         },
         "tiles/marble.tsx": {
-            "dynamicWrapping": true,
+            "dynamicWrapping": false,
             "scaleInDock": 1,
             "scaleInEditor": 2
         },

@@ -36,6 +36,7 @@ class Player:
         self._entity = world.Entity(
             world.Transform(pos=pos, anchor=(0.5, 0.0)),
             world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", scale_factor=1.5), z=15),
+            world.ShapeRenderer(shape=self._shape, z=1),
             world.Animator(),
             world.Collider(shape=self._shape),
             world.RigidBody(mass=50.0, friction=0.35, restitution=0.1),
@@ -89,27 +90,9 @@ class Player:
         return self.is_grounded() and abs(self.rb.velocity.x) > 1.0
 
 # ======================================== STRUCTURE ========================================
-wl_shape = pv.shape.Rect(30, H * 4)
-wall_l = world.Entity(
-    world.Transform(pos=pv.math.Point(-hw * 3 + 15, 0.0), anchor=(0.5, 0.5)),
-    world.ShapeRenderer(shape=wl_shape, filling_color=(100, 100, 100), z=10),
-    world.Collider(shape=wl_shape),
-    world.RigidBody(restitution=0.2, friction=0.5)
-)
-main_world.add_entity(wall_l)
-
-wr_shape = pv.shape.Rect(30, H * 4)
-wall_r = world.Entity(
-    world.Transform(pos=pv.math.Point(hw * 3 - 15, 0.0), anchor=(0.5, 0.5)),
-    world.ShapeRenderer(shape=wr_shape, filling_color=(100, 100, 100), z=10),
-    world.Collider(shape=wr_shape),
-    world.RigidBody(restitution=0.2, friction=0.5)
-)
-main_world.add_entity(wall_r)
-
 r1_shape = pv.shape.Rect(400, 25)
 ramp1 = world.Entity(
-    world.Transform(pos=pv.math.Point(-300.0, -hh + 230), anchor=(0.5, 0.5), rotation=15.0),
+    world.Transform(pos=pv.math.Point(-300.0, -hh + 230), anchor=(0.5, 0.5), rotation=0.0),
     world.ShapeRenderer(shape=r1_shape, filling_color=(139, 90, 43), z=10),
     world.Collider(shape=r1_shape),
     world.RigidBody(restitution=0.1, friction=0.6)
