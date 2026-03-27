@@ -2,6 +2,7 @@ import pyverse2d as pv
 from pyverse2d import Window, Screen
 from pyverse2d import world
 from pyverse2d import scene
+import gc
 
 # ======================================== FENÊTRE ========================================
 screen = Screen()
@@ -21,12 +22,12 @@ scene.push(scene=main_scene)
 
 main_world = world.World()
 world_layer = scene.WorldLayer(world=main_world)
-main_scene.add_layer(world_layer)
+main_scene.add_layer(world_layer, z=0)
 
 # ======================================== PLAYER ========================================
 class Player:
-    MOVE_FORCE = 3000.0
-    JUMP_FORCE = 500.0
+    MOVE_FORCE = 2500.0
+    JUMP_FORCE = 400.0
     MAX_SPEED  = 10.0
 
     def __init__(self, world_, pos):
@@ -36,10 +37,9 @@ class Player:
             world.Transform(pos=pos, anchor=(0.5, 0.0)),
             world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", scale_factor=1.5), z=15),
             world.Animator(),
-            world.ShapeRenderer(shape=self._shape, filling_color=(220, 80, 80)),
             world.Collider(shape=self._shape),
             world.RigidBody(mass=50.0, friction=0.35, restitution=0.1),
-            world.GroundSensor(threshold=0.2, ground_damping=100.0)
+            world.GroundSensor(threshold=0.2, ground_damping=4.0, max_step_height=20)
         )
         world_.add_entity(self._entity)
         
@@ -89,15 +89,6 @@ class Player:
         return self.is_grounded() and abs(self.rb.velocity.x) > 1.0
 
 # ======================================== STRUCTURE ========================================
-floor_shape = pv.shape.Rect(W * 4, 30)
-floor = world.Entity(
-    world.Transform(pos=pv.math.Point(0.0, -hh + 15), anchor=(0.5, 0.5)),
-    world.ShapeRenderer(shape=floor_shape, filling_color=(100, 100, 100), z=10),
-    world.Collider(shape=floor_shape),
-    world.RigidBody(restitution=0.2, friction=0.7)
-)
-main_world.add_entity(floor)
-
 wl_shape = pv.shape.Rect(30, H * 4)
 wall_l = world.Entity(
     world.Transform(pos=pv.math.Point(-hw * 3 + 15, 0.0), anchor=(0.5, 0.5)),
@@ -250,23 +241,77 @@ tri1.get(world.RigidBody).apply_force(pv.math.Vector(3000.0, 1000.0))
 # ======================================== PLAYER ========================================
 player = Player(main_world, pv.math.Point(0.0, 200.0))
 
+# ======================================== CAMERA ========================================
+def cam_left(): camera.move(pv.math.Vector(-10, 0))
+def cam_right(): camera.move(pv.math.Vector(10, 0))
+def cam_down(): camera.move(pv.math.Vector(0, -10))
+def cam_up(): camera.move(pv.math.Vector(0, 10))
+
+camlock = "free"
+def switch_camlock():
+    global camlock
+    if camlock == "free":
+        camlock = "player"
+        camera.follow(player._entity)
+    else:
+        camlock = "free"
+        camera.unfollow()
+
 # ======================================== INPUTS ========================================
 pv.inputs.add_listener(pv.key.SPACE, player.jump)
 pv.inputs.add_listener(pv.key.Q, player.move_left,  repeat=True)
 pv.inputs.add_listener(pv.key.D, player.move_right, repeat=True)
 
+pv.inputs.add_listener(pv.key.LEFT, cam_left, repeat=True)
+pv.inputs.add_listener(pv.key.RIGHT, cam_right, repeat=True)
+pv.inputs.add_listener(pv.key.DOWN, cam_down, repeat=True)
+pv.inputs.add_listener(pv.key.UP, cam_up, repeat=True)
+
+pv.inputs.add_listener(pv.key.L, switch_camlock)
+    
+# ======================================== SYSTÈMES ========================================
+main_world.add_system(world.RenderSystem())
+main_world.add_system(world.PhysicsSystem(pixels_per_meter=25))
+main_world.add_system(world.GravitySystem(pv.math.Vector(0.0, -9.8)))
+main_world.add_system(world.CollisionSystem())
+main_world.add_system(world.AnimationSystem())
+
+# ======================================== MAP ========================================
+stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=32, tile_height=32)
+
+# Background
+background = stage_0["background"]
+background.anchor = (0.5, 0.5)
+main_scene.add_layer(pv.scene.TileLayer(background), z=-2)
+
+# Parallax
+parallax = stage_0["parallax"]
+parallax.anchor = (0.5, 0.5)
+main_scene.add_layer(pv.scene.TileLayer(parallax), z=-1)
+
+# Ground
+ground = stage_0["ground"]
+ground.anchor = (0.5, 0.5)
+main_scene.add_layer(pv.scene.TileLayer(ground), z=1)
+pv.tile.CollisionMapper(ground).inject(main_world)
+
+# Foreground
+foreground = stage_0["foreground"]
+foreground.anchor = (0.5, 0.5)
+main_scene.add_layer(pv.scene.TileLayer(foreground), z=2)
+pv.tile.CollisionMapper(foreground).inject(main_world)
+
+# Bordure
+border = stage_0["border"]
+border.anchor = (0.5, 0.5)
+main_scene.add_layer(pv.scene.TileLayer(border), z=3)
+pv.tile.CollisionMapper(border).inject(main_world)
+
 # ======================================== UPDATE ========================================
 def on_update(dt: float):
     """Boucle principale"""
     ...
-    
-# ======================================== SYSTÈMES ========================================
-main_world.add_system(world.RenderSystem())
-main_world.add_system(world.PhysicsSystem(pixels_per_meter=20))
-main_world.add_system(world.GravitySystem())
-main_world.add_system(world.CollisionSystem())
-main_world.add_system(world.AnimationSystem())
 
-camera.follow(player.entity)
-
+main_scene.preload()
+gc.disable()
 pv.run(on_update)
