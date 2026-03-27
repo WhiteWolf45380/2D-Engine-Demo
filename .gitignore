@@ -1,2 +1,5 @@
 venv/
 .venv/
+
+*.tiled-project
+*.tiled-session

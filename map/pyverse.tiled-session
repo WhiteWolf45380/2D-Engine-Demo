@@ -1,0 +1,96 @@
+{
+    "activeFile": "maps/stage_0.tmx",
+    "expandedProjectPaths": [
+        "maps",
+        "tiles",
+        "."
+    ],
+    "file.lastUsedOpenFilter": "Tous les Fichiers (*)",
+    "fileStates": {
+        "maps/stage_0.tmx": {
+            "scale": 0.5,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 1042,
+                "y": 666
+            }
+        },
+        "tiles/Ground.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tiles/Plateform.tsx": {
+            "scaleInDock": 0.25,
+            "scaleInEditor": 1
+        },
+        "tiles/Stone.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 3
+        },
+        "tiles/marble.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 2
+        },
+        "tiles/marble_separated.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 4
+        },
+        "tiles/rock.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 4
+        },
+        "tiles/sand.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 3
+        },
+        "tiles/stone.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 2
+        },
+        "tiles/stone2.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 4
+        }
+    },
+    "last.exportedFilePath": "C:/Users/mathe/Desktop/Projects/PyVerse2D_Demo/map/maps",
+    "last.imagePath": "C:/Users/mathe/Desktop/Projects/PyVerse2D_Demo/map/assets/platformes/Tilemap",
+    "map.fixedSize": true,
+    "map.height": 80,
+    "map.lastUsedExportFilter": "Tous les Fichiers (*)",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 18,
+    "map.tileWidth": 18,
+    "map.width": 120,
+    "openFiles": [
+        "maps/stage_0.tmx",
+        "tiles/marble.tsx",
+        "tiles/rock.tsx",
+        "tiles/sand.tsx",
+        "tiles/stone.tsx"
+    ],
+    "project": "pyverse.tiled-project",
+    "property.type": "bool",
+    "recentFiles": [
+        "tiles/stone.tsx",
+        "tiles/sand.tsx",
+        "tiles/rock.tsx",
+        "tiles/marble.tsx",
+        "maps/stage_0.tmx",
+        "tiles/marble_separated.tsx",
+        "tiles/Ground.tsx",
+        "tiles/Stone.tsx",
+        "tiles/stone2.tsx",
+        "tiles/Plateform.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.margin": 0,
+    "tileset.spacing": 0,
+    "tileset.tileSize": {
+        "height": 18,
+        "width": 18
+    }
+}
