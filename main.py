@@ -297,4 +297,5 @@ def on_update(dt: float):
 
 main_scene.preload()
 gc.disable()
+pv.set_fps(90)
 pv.run(on_update)

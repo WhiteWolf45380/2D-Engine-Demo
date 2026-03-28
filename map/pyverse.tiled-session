@@ -1,18 +1,18 @@
 {
-    "activeFile": "maps/stage_0.tmx",
+    "activeFile": "tiles/marble.tsx",
     "expandedProjectPaths": [
-        "maps",
         "tiles",
-        "."
+        ".",
+        "maps"
     ],
     "file.lastUsedOpenFilter": "Tous les Fichiers (*)",
     "fileStates": {
         "maps/stage_0.tmx": {
             "scale": 0.5,
-            "selectedLayer": 3,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 1042,
-                "y": 666
+                "x": 1081,
+                "y": 716
             }
         },
         "tiles/Ground.tsx": {
@@ -28,7 +28,7 @@
             "scaleInEditor": 3
         },
         "tiles/marble.tsx": {
-            "dynamicWrapping": false,
+            "dynamicWrapping": true,
             "scaleInDock": 1,
             "scaleInEditor": 2
         },
@@ -75,11 +75,11 @@
     "project": "pyverse.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "maps/stage_0.tmx",
         "tiles/stone.tsx",
         "tiles/sand.tsx",
         "tiles/rock.tsx",
         "tiles/marble.tsx",
-        "maps/stage_0.tmx",
         "tiles/marble_separated.tsx",
         "tiles/Ground.tsx",
         "tiles/Stone.tsx",
