@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.12.0" name="rock" tilewidth="18" tileheight="18" tilecount="81" columns="9">
+<tileset version="1.10" tiledversion="1.12.1" name="rock" tilewidth="18" tileheight="18" tilecount="81" columns="9">
  <properties>
   <property name="solid" type="bool" value="true"/>
  </properties>
@@ -44,8 +44,8 @@
    <property name="solid" type="bool" value="true"/>
   </properties>
   <objectgroup draworder="index" id="2">
-   <object id="1" x="0" y="0">
-    <polygon points="0,0 0,18 18,18"/>
+   <object id="3" x="8.98828" y="0">
+    <polygon points="0,0 9.01172,9.00391 9.01172,18 -8.98828,18 -8.98828,0"/>
    </object>
   </objectgroup>
  </tile>
@@ -54,8 +54,8 @@
    <property name="solid" type="bool" value="true"/>
   </properties>
   <objectgroup draworder="index" id="2">
-   <object id="1" x="0" y="0">
-    <polygon points="0,0 0,18 18,18"/>
+   <object id="2" x="4.98438" y="0.00390625">
+    <polygon points="0,0 13.0156,12.9961 13.0156,17.9961 -4.98438,17.9961 -4.98438,-0.00390625"/>
    </object>
   </objectgroup>
  </tile>

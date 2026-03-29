@@ -27,6 +27,7 @@ main_scene.add_layer(world_layer, z=0)
 # ======================================== PLAYER ========================================
 class Player:
     MOVE_FORCE = 2500.0
+    AIR_MOVE_FORCE = 1000.0
     JUMP_FORCE = 400.0
     MAX_SPEED  = 10.0
 
@@ -36,7 +37,6 @@ class Player:
         self._entity = world.Entity(
             world.Transform(pos=pos, anchor=(0.5, 0.0)),
             world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", scale_factor=1.5), z=15),
-            world.ShapeRenderer(shape=self._shape, z=1),
             world.Animator(),
             world.Collider(shape=self._shape),
             world.RigidBody(mass=50.0, friction=0.35, restitution=0.1),
@@ -55,15 +55,15 @@ class Player:
 
     @property
     def rb(self) -> world.RigidBody:
-        return self._entity.get(world.RigidBody)
+        return self._entity.rigid_body
 
     @property
     def tr(self) -> world.Transform:
-        return self._entity.get(world.Transform)
+        return self._entity.transform
     
     @property
     def gs(self) -> world.GroundSensor:
-        return self._entity.get(world.GroundSensor)
+        return self._entity.ground_sensor
 
     @property
     def pos(self) -> pv.math.Point:
@@ -71,12 +71,12 @@ class Player:
 
     def move_left(self):
         if self.rb.velocity.x > -self.MAX_SPEED:
-            self.rb.apply_force(pv.math.Vector(-self.MOVE_FORCE, 0.0))
+            self.rb.apply_force(pv.math.Vector(-self.MOVE_FORCE if self.is_grounded() else -self.AIR_MOVE_FORCE, 0.0))
             self._entity.get(world.SpriteRenderer).flip_x = True
 
     def move_right(self):
         if self.rb.velocity.x < self.MAX_SPEED:
-            self.rb.apply_force(pv.math.Vector(self.MOVE_FORCE, 0.0))
+            self.rb.apply_force(pv.math.Vector(self.MOVE_FORCE if self.is_grounded() else self.AIR_MOVE_FORCE, 0.0))
             self._entity.get(world.SpriteRenderer).flip_x = False
 
     def jump(self):
@@ -137,7 +137,7 @@ main_world.add_entity(plat3)
 
 obs1_shape = pv.shape.RegularHexagon(35)
 obs1 = world.Entity(
-    world.Transform(pos=pv.math.Point(-150.0, -100), anchor=(0.5, 0.5), rotation=15.0),
+    world.Transform(pos=pv.math.Point(-150.0, -100), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=obs1_shape, filling_color=(60, 60, 80), z=10),
     world.Collider(shape=obs1_shape),
     world.RigidBody(restitution=0.4, friction=0.3)
@@ -146,7 +146,7 @@ main_world.add_entity(obs1)
 
 obs2_shape = pv.shape.RegularTriangle(40)
 obs2 = world.Entity(
-    world.Transform(pos=pv.math.Point(200.0, -100), anchor=(0.5, 0.5)),
+    world.Transform(pos=pv.math.Point(150.0, -100.0), anchor=(0.0, 0.0), rotation=45),
     world.ShapeRenderer(shape=obs2_shape, filling_color=(60, 60, 80), z=10),
     world.Collider(shape=obs2_shape),
     world.RigidBody(restitution=0.4, friction=0.3)
@@ -265,12 +265,12 @@ stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=32
 # Background
 background = stage_0["background"]
 background.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(background), z=-2)
+main_scene.add_layer(pv.scene.TileLayer(background, parallax=(0.8, 1.0)), z=-2)
 
 # Parallax
 parallax = stage_0["parallax"]
 parallax.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(parallax), z=-1)
+main_scene.add_layer(pv.scene.TileLayer(parallax, parallax=(0.9, 1.0)), z=-1)
 
 # Ground
 ground = stage_0["ground"]

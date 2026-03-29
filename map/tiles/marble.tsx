@@ -42,8 +42,8 @@
    <property name="solid" type="bool" value="true"/>
   </properties>
   <objectgroup draworder="index" id="2">
-   <object id="2" x="7.48155" y="0.0442696">
-    <polygon points="0,0 10.4476,10.7132 10.5184,17.9557 -7.48155,17.9557 -7.48155,-0.0442696"/>
+   <object id="1" x="0" y="0">
+    <polygon points="0,0 8.99609,0.00390625 18,9 18,18 0,18"/>
    </object>
   </objectgroup>
  </tile>
@@ -52,8 +52,8 @@
    <property name="solid" type="bool" value="true"/>
   </properties>
   <objectgroup draworder="index" id="2">
-   <object id="3" x="0" y="0">
-    <polygon points="0,0 3.67437,-0.0442696 17.9292,14.3876 18,18 0,18"/>
+   <object id="2" x="0" y="0">
+    <polygon points="0,0 4.99219,0.00390625 18,13.0039 18,18 0,18"/>
    </object>
   </objectgroup>
  </tile>
