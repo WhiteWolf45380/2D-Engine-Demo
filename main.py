@@ -27,16 +27,17 @@ main_scene.add_layer(world_layer, z=0)
 # ======================================== PLAYER ========================================
 class Player:
     MOVE_FORCE = 2500.0
-    AIR_MOVE_FORCE = 1000.0
+    AIR_MOVE_FORCE = 500.0
     JUMP_FORCE = 400.0
     MAX_SPEED  = 10.0
 
     def __init__(self, world_, pos):
-        self._shape = pv.shape.Capsule(13, 86)
-        self._animation = pv.asset.Animation.from_folder("assets/", prefix="running", framerate=8, scale_factor=1.5)
+        self._shape = pv.shape.Capsule(13, 80)
+        self._animation = pv.asset.Animation.from_folder("assets/", prefix="running", framerate=8, scale_factor=1.4)
         self._entity = world.Entity(
             world.Transform(pos=pos, anchor=(0.5, 0.0)),
-            world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", scale_factor=1.5), z=15),
+            world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", scale_factor=1.4), z=15),
+            world.ShapeRenderer(shape=self._shape, z=14),
             world.Animator(),
             world.Collider(shape=self._shape),
             world.RigidBody(mass=50.0, friction=0.35, restitution=0.1),
