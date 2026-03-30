@@ -31,11 +31,11 @@ class Player:
     JUMP_FORCE = 400.0
     MAX_SPEED  = 10.0
 
-    def __init__(self, world_, pos):
+    def __init__(self, world_, position):
         self._shape = pv.shape.Capsule(13, 80)
         self._animation = pv.asset.Animation.from_folder("assets/", prefix="running", framerate=8, scale_factor=1.4)
         self._entity = world.Entity(
-            world.Transform(pos=pos, anchor=(0.5, 0.0)),
+            world.Transform(position=position, anchor=(0.5, 0.0)),
             world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", scale_factor=1.4), z=15),
             world.ShapeRenderer(shape=self._shape, z=14),
             world.Animator(),
@@ -67,7 +67,7 @@ class Player:
         return self._entity.ground_sensor
 
     @property
-    def pos(self) -> pv.math.Point:
+    def position(self) -> pv.math.Point:
         return pv.math.Point(self.tr.x, self.tr.y)
 
     def move_left(self):
@@ -93,7 +93,7 @@ class Player:
 # ======================================== STRUCTURE ========================================
 r1_shape = pv.shape.Rect(400, 25)
 ramp1 = world.Entity(
-    world.Transform(pos=pv.math.Point(-300.0, -hh + 230), anchor=(0.5, 0.5), rotation=0.0),
+    world.Transform(position=pv.math.Point(-300.0, -hh + 230), anchor=(0.5, 0.5), rotation=0.0),
     world.ShapeRenderer(shape=r1_shape, filling_color=(139, 90, 43), z=10),
     world.Collider(shape=r1_shape),
     world.RigidBody(restitution=0.1, friction=0.6)
@@ -102,7 +102,7 @@ main_world.add_entity(ramp1)
 
 r2_shape = pv.shape.Rect(350, 25)
 ramp2 = world.Entity(
-    world.Transform(pos=pv.math.Point(320.0, -hh + 250), anchor=(0.5, 0.5), rotation=-20.0),
+    world.Transform(position=pv.math.Point(320.0, -hh + 250), anchor=(0.5, 0.5), rotation=-20.0),
     world.ShapeRenderer(shape=r2_shape, filling_color=(139, 90, 43), z=10),
     world.Collider(shape=r2_shape),
     world.RigidBody(restitution=0.1, friction=0.6)
@@ -111,7 +111,7 @@ main_world.add_entity(ramp2)
 
 p1_shape = pv.shape.Rect(200, 20)
 plat1 = world.Entity(
-    world.Transform(pos=pv.math.Point(-450.0, 80.0), anchor=(0.5, 0.5)),
+    world.Transform(position=pv.math.Point(-450.0, 80.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=p1_shape, filling_color=(80, 120, 160), z=10),
     world.Collider(shape=p1_shape),
     world.RigidBody(restitution=0.1, friction=0.6)
@@ -120,7 +120,7 @@ main_world.add_entity(plat1)
 
 p2_shape = pv.shape.Rect(180, 20)
 plat2 = world.Entity(
-    world.Transform(pos=pv.math.Point(0.0, 0.0), anchor=(0.5, 0.5)),
+    world.Transform(position=pv.math.Point(0.0, 0.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=p2_shape, filling_color=(80, 120, 160), z=10),
     world.Collider(shape=p2_shape),
     world.RigidBody(restitution=0.1, friction=0.6)
@@ -129,7 +129,7 @@ main_world.add_entity(plat2)
 
 p3_shape = pv.shape.Rect(160, 20)
 plat3 = world.Entity(
-    world.Transform(pos=pv.math.Point(450.0, 150.0), anchor=(0.5, 0.5)),
+    world.Transform(position=pv.math.Point(450.0, 150.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=p3_shape, filling_color=(80, 120, 160), z=10),
     world.Collider(shape=p3_shape),
     world.RigidBody(restitution=0.1, friction=0.6)
@@ -138,7 +138,7 @@ main_world.add_entity(plat3)
 
 obs1_shape = pv.shape.RegularHexagon(35)
 obs1 = world.Entity(
-    world.Transform(pos=pv.math.Point(-150.0, -100), anchor=(0.5, 0.5)),
+    world.Transform(position=pv.math.Point(-150.0, -100), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=obs1_shape, filling_color=(60, 60, 80), z=10),
     world.Collider(shape=obs1_shape),
     world.RigidBody(restitution=0.4, friction=0.3)
@@ -147,7 +147,7 @@ main_world.add_entity(obs1)
 
 obs2_shape = pv.shape.RegularTriangle(40)
 obs2 = world.Entity(
-    world.Transform(pos=pv.math.Point(150.0, -100.0), anchor=(0.0, 0.0), rotation=45),
+    world.Transform(position=pv.math.Point(150.0, -100.0), anchor=(0.0, 0.0), rotation=45),
     world.ShapeRenderer(shape=obs2_shape, filling_color=(60, 60, 80), z=10),
     world.Collider(shape=obs2_shape),
     world.RigidBody(restitution=0.4, friction=0.3)
@@ -157,7 +157,7 @@ main_world.add_entity(obs2)
 # Objets dynamiques
 ball1_shape = pv.shape.Circle(20.0)
 ball1 = world.Entity(
-    world.Transform(pos=pv.math.Point(-400.0, 300.0), anchor=(0.5, 0.5)),
+    world.Transform(position=pv.math.Point(-400.0, 300.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=ball1_shape, filling_color=(80, 180, 220)),
     world.Collider(shape=ball1_shape),
     world.RigidBody(mass=10.0, friction=0.2, restitution=0.75)
@@ -167,7 +167,7 @@ ball1.get(world.RigidBody).apply_force(pv.math.Vector(6000.0, 0.0))
 
 ball2_shape = pv.shape.Circle(14.0)
 ball2 = world.Entity(
-    world.Transform(pos=pv.math.Point(400.0, 300.0), anchor=(0.5, 0.5)),
+    world.Transform(position=pv.math.Point(400.0, 300.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=ball2_shape, filling_color=(80, 220, 140)),
     world.Collider(shape=ball2_shape),
     world.RigidBody(mass=5.0, friction=0.15, restitution=0.8)
@@ -177,7 +177,7 @@ ball2.get(world.RigidBody).apply_force(pv.math.Vector(-4000.0, 2000.0))
 
 rect1_shape = pv.shape.Rect(55, 40)
 rect1 = world.Entity(
-    world.Transform(pos=pv.math.Point(-200.0, 300.0), anchor=(0.5, 0.5)),
+    world.Transform(position=pv.math.Point(-200.0, 300.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=rect1_shape, filling_color=(180, 80, 220)),
     world.Collider(shape=rect1_shape),
     world.RigidBody(mass=40.0, friction=0.5, restitution=0.15)
@@ -186,7 +186,7 @@ main_world.add_entity(rect1)
 
 rect2_shape = pv.shape.Rect(35, 25)
 rect2 = world.Entity(
-    world.Transform(pos=pv.math.Point(200.0, 350.0), anchor=(0.5, 0.5)),
+    world.Transform(position=pv.math.Point(200.0, 350.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=rect2_shape, filling_color=(220, 220, 80)),
     world.Collider(shape=rect2_shape),
     world.RigidBody(mass=8.0, friction=0.4, restitution=0.3)
@@ -195,7 +195,7 @@ main_world.add_entity(rect2)
 
 ellipse_shape = pv.shape.Ellipse(28, 14)
 ellipse = world.Entity(
-    world.Transform(pos=pv.math.Point(0.0, 350.0), anchor=(0.5, 0.5)),
+    world.Transform(position=pv.math.Point(0.0, 350.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=ellipse_shape, filling_color=(80, 220, 220)),
     world.Collider(shape=ellipse_shape),
     world.RigidBody(mass=200.0, friction=0.25, restitution=0.6)
@@ -205,7 +205,7 @@ ellipse.get(world.RigidBody).apply_force(pv.math.Vector(2000.0, 0.0))
 
 hex1_shape = pv.shape.RegularHexagon(25)
 hex1 = world.Entity(
-    world.Transform(pos=pv.math.Point(100.0, 350.0), anchor=(0.5, 0.5)),
+    world.Transform(position=pv.math.Point(100.0, 350.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=hex1_shape, filling_color=(220, 80, 180)),
     world.Collider(shape=hex1_shape),
     world.RigidBody(mass=18.0, friction=0.45, restitution=0.35)
@@ -214,7 +214,7 @@ main_world.add_entity(hex1)
 
 tri1_shape = pv.shape.RegularTriangle(28)
 tri1 = world.Entity(
-    world.Transform(pos=pv.math.Point(-100.0, 350.0), anchor=(0.5, 0.5)),
+    world.Transform(position=pv.math.Point(-100.0, 350.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=tri1_shape, filling_color=(180, 220, 80)),
     world.Collider(shape=tri1_shape),
     world.RigidBody(mass=12.0, friction=0.3, restitution=0.4)
@@ -237,9 +237,11 @@ def switch_camlock():
     if camlock == "free":
         camlock = "player"
         camera.follow(player._entity)
+        camera.offset = pv.math.Vector(0.0, 30)
     else:
         camlock = "free"
         camera.unfollow()
+        camera.offset = pv.math.Vector(0.0, 0.0)
 
 # ======================================== INPUTS ========================================
 pv.inputs.add_listener(pv.key.SPACE, player.jump)
@@ -253,7 +255,7 @@ pv.inputs.add_listener(pv.key.UP, cam_up, repeat=True)
 
 pv.inputs.add_listener(pv.key.L, switch_camlock)
     
-# ======================================== SYSTÈMES ========================================
+# ======================================== SYSTEMS ========================================
 main_world.add_system(world.RenderSystem())
 main_world.add_system(world.PhysicsSystem(pixels_per_meter=25))
 main_world.add_system(world.GravitySystem(pv.math.Vector(0.0, -9.8)))
@@ -266,12 +268,12 @@ stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=32
 # Background
 background = stage_0["background"]
 background.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(background, parallax=(0.8, 1.0)), z=-2)
+main_scene.add_layer(pv.scene.TileLayer(background, parallax=(0.8, 1.0), parallax_clamp=True), z=-2)
 
 # Parallax
 parallax = stage_0["parallax"]
 parallax.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(parallax, parallax=(0.9, 1.0)), z=-1)
+main_scene.add_layer(pv.scene.TileLayer(parallax, parallax=(0.9, 1.0), parallax_clamp=True), z=-1)
 
 # Ground
 ground = stage_0["ground"]
@@ -290,6 +292,21 @@ border = stage_0["border"]
 border.anchor = (0.5, 0.5)
 main_scene.add_layer(pv.scene.TileLayer(border), z=3)
 pv.tile.CollisionMapper(border).inject(main_world)
+
+# ======================================== UI ========================================
+ui_layer = pv.scene.UILayer(camera_mode=pv.scene.CameraMode.SCREEN)
+main_scene.add_layer(ui_layer, z=-50)
+
+ui_layer.add(
+    pv.ui.Surface(
+        shape=pv.shape.Rect(500, 200),
+        position=pv.math.Point(0.0, 0.0),
+        anchor=(0, 0),
+        color=(255, 255, 255),
+    ),
+    name = "back",
+    z = 0,
+)
 
 # ======================================== UPDATE ========================================
 def on_update(dt: float):
