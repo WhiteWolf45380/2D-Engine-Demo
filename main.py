@@ -268,12 +268,12 @@ stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=32
 # Background
 background = stage_0["background"]
 background.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(background, parallax=(0.8, 1.0), parallax_clamp=True), z=-2)
+main_scene.add_layer(pv.scene.TileLayer(background, parallax=(0.6, 1.0), parallax_clamp=True), z=-2)
 
 # Parallax
 parallax = stage_0["parallax"]
 parallax.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(parallax, parallax=(0.9, 1.0), parallax_clamp=True), z=-1)
+main_scene.add_layer(pv.scene.TileLayer(parallax, parallax=(0.8, 1.0), parallax_clamp=True), z=-1)
 
 # Ground
 ground = stage_0["ground"]
@@ -295,7 +295,7 @@ pv.tile.CollisionMapper(border).inject(main_world)
 
 # ======================================== UI ========================================
 ui_layer = pv.scene.UILayer(camera_mode=pv.scene.CameraMode.SCREEN)
-main_scene.add_layer(ui_layer, z=-50)
+main_scene.add_layer(ui_layer, z=50)
 
 ui_layer.add(
     pv.ui.Surface(
