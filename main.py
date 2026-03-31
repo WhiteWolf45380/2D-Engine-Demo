@@ -312,7 +312,7 @@ label = pv.ui.Label(
     anchor=pv.math.Point(0.5, 0.5),
     color=pv.asset.Color(0, 0, 0),
 )
-ui_layer.add(label, name="label", z=1)
+back.add_child(label, name="label", z=1)
 
 # ======================================== UPDATE ========================================
 def on_update(dt: float):
