@@ -268,12 +268,12 @@ stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=32
 # Background
 background = stage_0["background"]
 background.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(background, parallax=(0.6, 1.0), parallax_clamp=True), z=-2)
+main_scene.add_layer(pv.scene.TileLayer(background, parallax=(0.5, 1.0), parallax_clamp=True), z=-2)
 
 # Parallax
 parallax = stage_0["parallax"]
 parallax.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(parallax, parallax=(0.8, 1.0), parallax_clamp=True), z=-1)
+main_scene.add_layer(pv.scene.TileLayer(parallax, parallax=(0.6, 1.0), parallax_clamp=True), z=-1)
 
 # Ground
 ground = stage_0["ground"]
@@ -297,16 +297,22 @@ pv.tile.CollisionMapper(border).inject(main_world)
 ui_layer = pv.scene.UILayer(camera_mode=pv.scene.CameraMode.SCREEN)
 main_scene.add_layer(ui_layer, z=50)
 
-ui_layer.add(
-    pv.ui.Surface(
-        shape=pv.shape.Rect(500, 200),
-        position=pv.math.Point(0.0, 0.0),
-        anchor=(0, 0),
-        color=(255, 255, 255),
-    ),
-    name = "back",
-    z = 0,
+back = pv.ui.Surface(
+    shape=pv.shape.Rect(500, 200),
+    position=pv.math.Point(0.0, 0.0),
+    anchor=(0.5, 0.5),
+    color=(255, 255, 255),
 )
+ui_layer.add(back, name="back", z=0)
+
+text = pv.asset.Text("That's how it works", pv.asset.Font(size=32))
+label = pv.ui.Label(
+    text=text,
+    position=pv.math.Point(0.0, 0.0),
+    anchor=pv.math.Point(0.5, 0.5),
+    color=pv.asset.Color(0, 0, 0),
+)
+ui_layer.add(label, name="label", z=1)
 
 # ======================================== UPDATE ========================================
 def on_update(dt: float):
