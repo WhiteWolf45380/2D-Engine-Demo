@@ -312,7 +312,19 @@ label = pv.ui.Label(
     anchor=pv.math.Point(0.5, 0.5),
     color=pv.asset.Color(0, 0, 0),
 )
-back.add_child(label, name="label", z=1)
+back.add_child(label, name="label", z=2)
+
+image = pv.asset.Image("map/assets/ground_tile.png", scale_factor=3.0)
+sprite = pv.ui.Sprite(
+    image=image,
+    position=(0.0, 0.0),
+    anchor=(0.5, 0.5),
+    flip_x=True,
+    flip_y=True,
+    rotation=45,
+    color=(1.0, 0, 0)
+)
+back.add_child(sprite, name="sprite", z=1)
 
 # ======================================== UPDATE ========================================
 def on_update(dt: float):
