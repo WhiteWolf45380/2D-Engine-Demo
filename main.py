@@ -37,7 +37,6 @@ class Player:
         self._entity = world.Entity(
             world.Transform(position=position, anchor=(0.5, 0.0)),
             world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", scale_factor=1.4), z=15),
-            world.ShapeRenderer(shape=self._shape, z=14),
             world.Animator(),
             world.Collider(shape=self._shape),
             world.RigidBody(mass=50.0, friction=0.35, restitution=0.1),
@@ -46,7 +45,7 @@ class Player:
         world_.add_entity(self._entity)
         
         self._animator: world.Animator = self._entity.get(world.Animator)
-        self._animator.register(pv.request.AnimationRequest(self._animation, loop=True, cutable=True, condition=self.is_running))
+        self._animator.register(world.Animator.AnimationRequest(self._animation, loop=True, cutable=True, condition=self.is_running))
 
         self._direction = "right"
 
@@ -326,10 +325,13 @@ sprite = pv.ui.Sprite(
 )
 back.add_child(sprite, name="sprite", z=1)
 
+hover_behavior = pv.ui.HoverBehavior()
+back.add_behavior(hover_behavior)
+
 # ======================================== UPDATE ========================================
 def on_update(dt: float):
     """Boucle principale"""
-    ...
+    print(pv.ui_manager.hovered)
 
 main_scene.preload()
 gc.disable()
