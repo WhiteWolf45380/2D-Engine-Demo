@@ -37,6 +37,7 @@ class Player:
         self._entity = world.Entity(
             world.Transform(position=position, anchor=(0.5, 0.0)),
             world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", scale_factor=1.4), z=15),
+            world.ShapeRenderer(shape=self._shape, z=14),
             world.Animator(),
             world.Collider(shape=self._shape),
             world.RigidBody(mass=50.0, friction=0.35, restitution=0.1),
@@ -292,21 +293,21 @@ border.anchor = (0.5, 0.5)
 main_scene.add_layer(pv.scene.TileLayer(border), z=3)
 pv.tile.CollisionMapper(border).inject(main_world)
 
-# ======================================== UI ========================================
-ui_layer = pv.scene.UILayer(camera_mode=pv.scene.CameraMode.SCREEN)
-main_scene.add_layer(ui_layer, z=50)
+# ======================================== GUI ========================================
+gui_layer = pv.scene.GuiLayer(camera_mode=pv.scene.CameraMode.SCREEN)
+main_scene.add_layer(gui_layer, z=50)
 
 back_shape = pv.shape.Rect(500, 200)
-back = pv.ui.Surface(
+back = pv.gui.Surface(
     shape=back_shape,
     position=pv.math.Point(0.0, 0.0),
     anchor=(0.5, 0.5),
     color=(255, 255, 255),
 )
-ui_layer.add(back, name="back", z=0)
+gui_layer.add(back, name="back", z=0)
 
 text = pv.asset.Text("That's how it works", pv.asset.Font(size=32))
-label = pv.ui.Label(
+label = pv.gui.Label(
     text=text,
     position=pv.math.Point(0.0, 0.0),
     anchor=pv.math.Point(0.5, 0.5),
@@ -315,7 +316,7 @@ label = pv.ui.Label(
 back.add_child(label, name="label", z=2)
 
 image = pv.asset.Image("map/assets/ground_tile.png", scale_factor=3.0)
-sprite = pv.ui.Sprite(
+sprite = pv.gui.Sprite(
     image=image,
     position=(0.0, 0.0),
     anchor=(0.5, 0.5),
@@ -332,7 +333,7 @@ back.add_behavior(hover_behavior)
 # ======================================== UPDATE ========================================
 def on_update(dt: float):
     """Boucle principale"""
-    print(pv.inputs.mouse_pos)
+    ...
 
 main_scene.preload()
 gc.disable()
