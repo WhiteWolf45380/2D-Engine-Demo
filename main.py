@@ -327,8 +327,28 @@ sprite = pv.gui.Sprite(
 )
 back.add_child(sprite, name="sprite", z=1)
 
-hover_behavior = pv.ui.HoverBehavior()
-back.add_behavior(hover_behavior)
+back.add_behavior(hover_behavior := pv.gui.HoverBehavior())
+back.add_behavior(click_behavior := pv.gui.ClickBehavior())
+
+@hover_behavior.on_enter
+def on_hover_enter():
+    print("Hover enter")
+
+@hover_behavior.on_leave
+def on_hover_leave():
+    print("Hover leave")
+
+@hover_behavior.when_hovered
+def when_hovered():
+    print("Hovering")
+
+@hover_behavior.when_unhovered
+def when_unhovered():
+    print("Unhovering")
+
+def on_click():
+    print("Clicked")
+click_behavior.add(callback=on_click)
 
 # ======================================== UPDATE ========================================
 def on_update(dt: float):
