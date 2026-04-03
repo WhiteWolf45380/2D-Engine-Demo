@@ -296,8 +296,9 @@ pv.tile.CollisionMapper(border).inject(main_world)
 ui_layer = pv.scene.UILayer(camera_mode=pv.scene.CameraMode.SCREEN)
 main_scene.add_layer(ui_layer, z=50)
 
+back_shape = pv.shape.Rect(500, 200)
 back = pv.ui.Surface(
-    shape=pv.shape.Rect(500, 200),
+    shape=back_shape,
     position=pv.math.Point(0.0, 0.0),
     anchor=(0.5, 0.5),
     color=(255, 255, 255),
@@ -331,7 +332,7 @@ back.add_behavior(hover_behavior)
 # ======================================== UPDATE ========================================
 def on_update(dt: float):
     """Boucle principale"""
-    print(pv.ui_manager.hovered)
+    print(pv.inputs.mouse_pos)
 
 main_scene.preload()
 gc.disable()
