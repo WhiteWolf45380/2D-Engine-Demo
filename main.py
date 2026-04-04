@@ -37,7 +37,6 @@ class Player:
         self._entity = world.Entity(
             world.Transform(position=position, anchor=(0.5, 0.0)),
             world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", scale_factor=1.4), z=15),
-            world.ShapeRenderer(shape=self._shape, z=14),
             world.Animator(),
             world.Collider(shape=self._shape),
             world.RigidBody(mass=50.0, friction=0.35, restitution=0.1),
@@ -236,12 +235,13 @@ def switch_camlock():
     global camlock
     if camlock == "free":
         camlock = "player"
-        camera.follow(player._entity)
+        camera.follow(player._entity, smoothing=0.03, max_speed=1000)
         camera.offset = pv.math.Vector(0.0, 30)
     else:
         camlock = "free"
         camera.unfollow()
         camera.offset = pv.math.Vector(0.0, 0.0)
+        camera.goto((0, 0), duration=1.0, easing=pv.math.easing.ease_out_quint)
 
 # ======================================== INPUTS ========================================
 pv.inputs.add_listener(pv.key.SPACE, player.jump)
@@ -327,8 +327,10 @@ sprite = pv.gui.Sprite(
 )
 back.add_child(sprite, name="sprite", z=1)
 
+selection = pv.gui.SelectionGroup(name="my_selection", limit=1, replace=True, deselectable=True)
 back.add_behavior(hover_behavior := pv.gui.HoverBehavior())
 back.add_behavior(click_behavior := pv.gui.ClickBehavior())
+back.add_behavior(select_behavior := pv.gui.SelectBehavior(selection_group=selection))
 
 @hover_behavior.on_enter
 def on_hover_enter():
@@ -338,18 +340,19 @@ def on_hover_enter():
 def on_hover_leave():
     print("Hover leave")
 
-@hover_behavior.when_hovered
-def when_hovered():
-    print("Hovering")
-
-@hover_behavior.when_unhovered
-def when_unhovered():
-    print("Unhovering")
-
 def on_click():
     print("Clicked")
 click_behavior.add(callback=on_click)
 
+@select_behavior.on_select
+def on_select():
+    print("select")
+
+
+@select_behavior.on_deselect
+def on_deselect():
+    print("deselect")
+back.hide()
 # ======================================== UPDATE ========================================
 def on_update(dt: float):
     """Boucle principale"""
