@@ -32,11 +32,12 @@ class Player:
     MAX_SPEED  = 10.0
 
     def __init__(self, world_, position):
-        self._shape = pv.shape.Capsule(13, 80)
+        self._shape = pv.shape.Capsule(18, 80)
         self._animation = pv.asset.Animation.from_folder("assets/", prefix="running", framerate=8, scale_factor=1.4)
         self._entity = world.Entity(
             world.Transform(position=position, anchor=(0.5, 0.0)),
             world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", scale_factor=1.4), z=15),
+            world.ShapeRenderer(shape=self._shape),
             world.Animator(),
             world.Collider(shape=self._shape),
             world.RigidBody(mass=50.0, friction=0.35, restitution=0.1),
@@ -327,11 +328,13 @@ sprite = pv.gui.Sprite(
 )
 back.add_child(sprite, name="sprite", z=1)
 
+border = pv.gui.Border(shape=back_shape, position=(0, 0), anchor=(0.5, 0.5), width=10)
+gui_layer.add(border, "border", z=10)
+
 selection = pv.gui.SelectionGroup(name="my_selection", limit=1, replace=True, deselectable=True)
 back.add_behavior(hover_behavior := pv.gui.HoverBehavior())
 back.add_behavior(click_behavior := pv.gui.ClickBehavior())
 back.add_behavior(select_behavior := pv.gui.SelectBehavior(selection_group=selection))
-back.hide()
 
 @hover_behavior.on_enter
 def on_hover_enter():
@@ -357,6 +360,7 @@ def on_deselect():
 # ======================================== UPDATE ========================================
 def on_update(dt: float):
     """Boucle principale"""
+    pass
 
 main_scene.preload()
 gc.disable()
