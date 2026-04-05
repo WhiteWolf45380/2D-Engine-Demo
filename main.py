@@ -235,25 +235,25 @@ def switch_camlock():
     global camlock
     if camlock == "free":
         camlock = "player"
-        camera.follow(player._entity, smoothing=0.03, max_speed=1000)
+        camera.follow(player._entity, smoothing=0.03)
         camera.offset = pv.math.Vector(0.0, 30)
     else:
         camlock = "free"
         camera.unfollow()
         camera.offset = pv.math.Vector(0.0, 0.0)
-        camera.goto((0, 0), duration=1.0, easing=pv.math.easing.ease_out_quint)
+        camera.goto((0, 0), duration=1.0, easing=pv.math.easing.ease_in_out_quad)
 
 # ======================================== INPUTS ========================================
-pv.inputs.add_listener(pv.key.SPACE, player.jump)
-pv.inputs.add_listener(pv.key.Q, player.move_left,  repeat=True)
-pv.inputs.add_listener(pv.key.D, player.move_right, repeat=True)
+pv.inputs.add_listener(pv.key.K_SPACE, player.jump)
+pv.inputs.add_listener(pv.key.K_Q, player.move_left,  repeat=True)
+pv.inputs.add_listener(pv.key.K_D, player.move_right, repeat=True)
 
-pv.inputs.add_listener(pv.key.LEFT, cam_left, repeat=True)
-pv.inputs.add_listener(pv.key.RIGHT, cam_right, repeat=True)
-pv.inputs.add_listener(pv.key.DOWN, cam_down, repeat=True)
-pv.inputs.add_listener(pv.key.UP, cam_up, repeat=True)
+pv.inputs.add_listener(pv.key.K_LEFT, cam_left, repeat=True)
+pv.inputs.add_listener(pv.key.K_RIGHT, cam_right, repeat=True)
+pv.inputs.add_listener(pv.key.K_DOWN, cam_down, repeat=True)
+pv.inputs.add_listener(pv.key.K_UP, cam_up, repeat=True)
 
-pv.inputs.add_listener(pv.key.L, switch_camlock)
+pv.inputs.add_listener(pv.key.K_L, switch_camlock)
     
 # ======================================== SYSTEMS ========================================
 main_world.add_system(world.RenderSystem())
@@ -331,6 +331,7 @@ selection = pv.gui.SelectionGroup(name="my_selection", limit=1, replace=True, de
 back.add_behavior(hover_behavior := pv.gui.HoverBehavior())
 back.add_behavior(click_behavior := pv.gui.ClickBehavior())
 back.add_behavior(select_behavior := pv.gui.SelectBehavior(selection_group=selection))
+back.hide()
 
 @hover_behavior.on_enter
 def on_hover_enter():
@@ -352,13 +353,12 @@ def on_select():
 @select_behavior.on_deselect
 def on_deselect():
     print("deselect")
-back.hide()
+
 # ======================================== UPDATE ========================================
 def on_update(dt: float):
     """Boucle principale"""
-    ...
 
 main_scene.preload()
 gc.disable()
-pv.set_fps(90)
+pv.time.target_fps = 90
 pv.run(on_update)
