@@ -2,7 +2,6 @@ import pyverse2d as pv
 from pyverse2d import Window, LogicalScreen, Viewport, Camera
 from pyverse2d import world
 from pyverse2d import scene
-import gc
 
 # ======================================== FENÊTRE ========================================
 screen = LogicalScreen()
@@ -16,7 +15,7 @@ hh = H * 0.5
 
 # ======================================== SCENE ========================================
 camera = Camera(view_height=50)
-viewport = Viewport()
+viewport = Viewport(origin=(0.5, 0.5))
 main_scene = scene.Scene(camera=camera, viewport=viewport, stack_mode=scene.StackMode.PAUSE)
 scene.push(scene=main_scene)
 
@@ -33,10 +32,11 @@ class Player:
 
     def __init__(self, world_, position):
         self._shape = pv.shape.Capsule(0.65, 4.3)
-        self._animation = pv.asset.Animation.from_folder("assets/", prefix="running", framerate=8, scale_factor=1.4)
+        img_height = self._shape.height * 96 / (96 - 38)
+        self._animation = pv.asset.Animation.from_folder("assets/", prefix="running", framerate=8, height=img_height)
         self._entity = world.Entity(
             world.Transform(position=position, anchor=(0.5, 0.0)),
-            world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", scale_factor=1.4), z=15),
+            world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", height=img_height), z=15),
             world.ShapeRenderer(shape=self._shape),
             world.Animator(),
             world.Collider(shape=self._shape),
@@ -235,12 +235,10 @@ def switch_camlock():
     global camlock
     if camlock == "free":
         camlock = "player"
-        camera.follow(player._entity.transform, smoothing=0.03)
-        camera.offset = pv.math.Vector(0.0, 30)
+        camera.follow(player._entity.transform, offset=(0, player._shape.height * 0.5), smoothing=0.03)
     else:
         camlock = "free"
         camera.idle()
-        camera.offset = pv.math.Vector(0.0, 0.0)
         camera.goto((0, 0), duration=1.0, easing=pv.math.easing.ease_in_out_quad)
 
 # ======================================== INPUTS ========================================
@@ -268,12 +266,12 @@ stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=1.
 # Background
 background = stage_0["background"]
 background.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(background, camera=(background_camera:=Camera()), clip=True), z=-2)
+main_scene.add_layer(pv.scene.TileLayer(background), z=-2)
 
 # Parallax
 parallax = stage_0["parallax"]
 parallax.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(parallax, clip=True), z=-1)
+main_scene.add_layer(pv.scene.TileLayer(parallax), z=-1)
 
 # Ground
 ground = stage_0["ground"]
@@ -294,7 +292,9 @@ main_scene.add_layer(pv.scene.TileLayer(border), z=3)
 pv.tile.CollisionMapper(border).inject(main_world)
 
 # ======================================== GUI ========================================
-gui_layer = pv.scene.GuiLayer(camera=(gui_camera:=Camera()))
+gui_camera = Camera()
+gui_camera.attach_to(camera)
+gui_layer = pv.scene.GuiLayer(camera=gui_camera)
 main_scene.add_layer(gui_layer, z=50)
 
 back_shape = pv.shape.Rect(500, 200)
@@ -320,8 +320,8 @@ sprite = pv.gui.Sprite(
     image=image,
     position=(0.0, 0.0),
     anchor=(0.5, 0.5),
-    flip_x=True,
-    flip_y=True,
+    flip_x=False,
+    flip_y=False,
     rotation=45,
     color=(1.0, 0, 0)
 )
@@ -365,7 +365,6 @@ def on_draw():
     pass
 
 # ======================================== LAUNCHING ========================================
-main_scene.preload()
-gc.disable()
+pv.preload()
 pv.time.target_fps = 90
 pv.run(on_update, on_draw)
