@@ -1,11 +1,11 @@
 import pyverse2d as pv
-from pyverse2d import Window, Screen
+from pyverse2d import Window, LogicalScreen, Viewport, Camera
 from pyverse2d import world
 from pyverse2d import scene
 import gc
 
 # ======================================== FENÊTRE ========================================
-screen = Screen()
+screen = LogicalScreen()
 window = Window(screen=screen, caption="PyVerse2D - Player Demo", vsync=True)
 pv.set_window(window)
 
@@ -15,12 +15,12 @@ hw = W * 0.5
 hh = H * 0.5
 
 # ======================================== SCENE ========================================
-camera = scene.Camera()
-viewport = scene.Viewport()
+camera = Camera(view_height=50)
+viewport = Viewport()
 main_scene = scene.Scene(camera=camera, viewport=viewport, stack_mode=scene.StackMode.PAUSE)
 scene.push(scene=main_scene)
 
-main_world = world.World(pixels_per_meter=20)
+main_world = world.World()
 world_layer = scene.WorldLayer(world=main_world)
 main_scene.add_layer(world_layer, z=0)
 
@@ -235,11 +235,11 @@ def switch_camlock():
     global camlock
     if camlock == "free":
         camlock = "player"
-        camera.follow(world_layer.entity_view(player._entity, ), smoothing=0.03)
+        camera.follow(player._entity.transform, smoothing=0.03)
         camera.offset = pv.math.Vector(0.0, 30)
     else:
         camlock = "free"
-        camera.unfollow()
+        camera.idle()
         camera.offset = pv.math.Vector(0.0, 0.0)
         camera.goto((0, 0), duration=1.0, easing=pv.math.easing.ease_in_out_quad)
 
@@ -263,17 +263,17 @@ main_world.add_system(world.CollisionSystem())
 main_world.add_system(world.AnimationSystem())
 
 # ======================================== MAP ========================================
-stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=32, tile_height=32)
+stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=1.0, tile_height=1.0)
 
 # Background
 background = stage_0["background"]
 background.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(background, parallax=(0.5, 1.0), parallax_clamp=True), z=-2)
+main_scene.add_layer(pv.scene.TileLayer(background, camera=(background_camera:=Camera()), clip=True), z=-2)
 
 # Parallax
 parallax = stage_0["parallax"]
 parallax.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(parallax, parallax=(0.6, 1.0), parallax_clamp=True), z=-1)
+main_scene.add_layer(pv.scene.TileLayer(parallax, clip=True), z=-1)
 
 # Ground
 ground = stage_0["ground"]
@@ -294,7 +294,7 @@ main_scene.add_layer(pv.scene.TileLayer(border), z=3)
 pv.tile.CollisionMapper(border).inject(main_world)
 
 # ======================================== GUI ========================================
-gui_layer = pv.scene.GuiLayer(camera_mode=pv.scene.CameraMode.SCREEN)
+gui_layer = pv.scene.GuiLayer(camera=(gui_camera:=Camera()))
 main_scene.add_layer(gui_layer, z=50)
 
 back_shape = pv.shape.Rect(500, 200)
@@ -355,12 +355,17 @@ def on_select():
 def on_deselect():
     print("deselect")
 
-# ======================================== UPDATE ========================================
+# ======================================== LIFE CYCLE ========================================
 def on_update(dt: float):
     """Boucle principale"""
     pass
 
+def on_draw():
+    """Boucle d'affichage"""
+    pass
+
+# ======================================== LAUNCHING ========================================
 main_scene.preload()
 gc.disable()
 pv.time.target_fps = 90
-pv.run(on_update)
+pv.run(on_update, on_draw)
