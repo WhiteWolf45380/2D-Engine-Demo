@@ -14,8 +14,8 @@ hw = W * 0.5
 hh = H * 0.5
 
 # ======================================== SCENE ========================================
-camera = Camera(view_height=50)
-viewport = Viewport(origin=(0.5, 0.5))
+camera = Camera(view_height=48)
+viewport = Viewport(origin=(0.0, 0.0))
 main_scene = scene.Scene(camera=camera, viewport=viewport, stack_mode=scene.StackMode.PAUSE)
 scene.push(scene=main_scene)
 
@@ -261,7 +261,7 @@ main_world.add_system(world.CollisionSystem())
 main_world.add_system(world.AnimationSystem())
 
 # ======================================== MAP ========================================
-stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=1.0, tile_height=1.0)
+stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=1.5, tile_height=1.5)
 
 # Background
 background = stage_0["background"]
@@ -293,9 +293,9 @@ pv.tile.CollisionMapper(border).inject(main_world)
 
 # ======================================== GUI ========================================
 gui_camera = Camera()
-gui_camera.attach_to(camera)
 gui_layer = pv.scene.GuiLayer(camera=gui_camera)
 main_scene.add_layer(gui_layer, z=50)
+gui_layer.hide()
 
 back_shape = pv.shape.Rect(500, 200)
 back = pv.gui.Surface(
