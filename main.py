@@ -242,6 +242,8 @@ def switch_camlock():
         camera.goto((0, 0), duration=1.0, easing=pv.math.easing.ease_in_out_quad)
 
 # ======================================== INPUTS ========================================
+pv.inputs.add_listener(pv.key.K_F11, window.toggle_fullscreen)
+
 pv.inputs.add_listener(pv.key.K_SPACE, player.jump)
 pv.inputs.add_listener(pv.key.K_Q, player.move_left,  repeat=True)
 pv.inputs.add_listener(pv.key.K_D, player.move_right, repeat=True)
@@ -259,6 +261,7 @@ main_world.add_system(world.PhysicsSystem())
 main_world.add_system(world.GravitySystem(pv.math.Vector(0.0, -9.8)))
 main_world.add_system(world.CollisionSystem(slop=0.025, max_position_correction=0.4, extra_iterations_threshold=0.2, restitution_threshold=0.05, restitution_max_velocity=0.5, vel_along_wake_treshold=0.02))
 main_world.add_system(world.AnimationSystem())
+main_world.add_system(world.SteeringSystem())
 
 # ======================================== MAP ========================================
 stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=1.5, tile_height=1.5)
