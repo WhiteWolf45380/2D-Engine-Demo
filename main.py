@@ -5,7 +5,7 @@ from pyverse2d import scene
 
 # ======================================== FENÊTRE ========================================
 screen = LogicalScreen()
-window = Window(screen=screen, caption="PyVerse2D - Player Demo", vsync=True)
+window = Window(screen=screen, caption="PyVerse2D - Demo", vsync=True)
 pv.set_window(window)
 
 W = screen.width
@@ -15,7 +15,7 @@ hh = H * 0.5
 
 # ======================================== SCENE ========================================
 camera = Camera(view_height=48)
-viewport = Viewport(origin=(0.0, 0.0))
+viewport = Viewport(origin=(0.5, 0.5), direction=(1.0, 1.0))
 main_scene = scene.Scene(camera=camera, viewport=viewport, stack_mode=scene.StackMode.PAUSE)
 scene.push(scene=main_scene)
 
@@ -35,13 +35,13 @@ class Player:
         img_height = self._shape.height * 96 / (96 - 38)
         self._animation = pv.asset.Animation.from_folder("assets/", prefix="running", framerate=8, height=img_height)
         self._entity = world.Entity(
-            world.Transform(position=position, anchor=(0.5, 0.0)),
+            world.Transform(position=position, anchor=(0.5, 0.0), rotation=45),
             world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", height=img_height), z=15),
             world.ShapeRenderer(shape=self._shape),
             world.Animator(),
             world.Collider(shape=self._shape),
             world.RigidBody(mass=50.0, friction=0.35, restitution=0.1),
-            world.GroundSensor(threshold=0.2, ground_damping=4.0, max_step_height=1.0)
+            world.GroundSensor(threshold=0.2, ground_damping=4.0, max_step_height=0.75, coyote_time=0.03)
         )
         world_.add_entity(self._entity)
         
@@ -257,7 +257,7 @@ pv.inputs.add_listener(pv.key.K_L, switch_camlock)
 main_world.add_system(world.RenderSystem())
 main_world.add_system(world.PhysicsSystem())
 main_world.add_system(world.GravitySystem(pv.math.Vector(0.0, -9.8)))
-main_world.add_system(world.CollisionSystem())
+main_world.add_system(world.CollisionSystem(slop=0.025, max_position_correction=0.4, extra_iterations_threshold=0.2, restitution_threshold=0.05, restitution_max_velocity=0.5, vel_along_wake_treshold=0.02))
 main_world.add_system(world.AnimationSystem())
 
 # ======================================== MAP ========================================
@@ -266,12 +266,12 @@ stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=1.
 # Background
 background = stage_0["background"]
 background.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(background), z=-2)
+main_scene.add_layer(pv.scene.TileLayer(background, camera=(background_camera := Camera.derived_from(camera, parallax_x=0.5)), clip_camera=camera), z=-2)
 
 # Parallax
 parallax = stage_0["parallax"]
 parallax.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(parallax), z=-1)
+main_scene.add_layer(pv.scene.TileLayer(parallax, camera=(parallax_camera := Camera.derived_from(camera, parallax_x=0.75)), clip_camera=camera), z=-1)
 
 # Ground
 ground = stage_0["ground"]
@@ -292,8 +292,7 @@ main_scene.add_layer(pv.scene.TileLayer(border), z=3)
 pv.tile.CollisionMapper(border).inject(main_world)
 
 # ======================================== GUI ========================================
-gui_camera = Camera()
-gui_layer = pv.scene.GuiLayer(camera=gui_camera)
+gui_layer = pv.scene.GuiLayer(camera=(gui_camera := Camera()))
 main_scene.add_layer(gui_layer, z=50)
 gui_layer.hide()
 
@@ -358,7 +357,6 @@ def on_deselect():
 # ======================================== LIFE CYCLE ========================================
 def on_update(dt: float):
     """Boucle principale"""
-    pass
 
 def on_draw():
     """Boucle d'affichage"""
