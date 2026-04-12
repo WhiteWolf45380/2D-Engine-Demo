@@ -14,7 +14,7 @@ hw = W * 0.5
 hh = H * 0.5
 
 # ======================================== SCENE ========================================
-camera = Camera(view_height=48)
+camera = Camera(anchor=(0.5, 0.5), view_height=48)
 viewport = Viewport(origin=(0.5, 0.5), direction=(1.0, 1.0))
 main_scene = scene.Scene(camera=camera, viewport=viewport, stack_mode=scene.StackMode.PAUSE)
 scene.push(scene=main_scene)
@@ -35,7 +35,7 @@ class Player:
         img_height = self._shape.height * 96 / (96 - 38)
         self._animation = pv.asset.Animation.from_folder("assets/", prefix="running", framerate=8, height=img_height)
         self._entity = world.Entity(
-            world.Transform(position=position, anchor=(0.5, 0.0), rotation=45),
+            world.Transform(position=position, anchor=(0.5, 0.0), rotation=0),
             world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", height=img_height), z=15),
             world.ShapeRenderer(shape=self._shape),
             world.Animator(),
@@ -147,7 +147,7 @@ main_world.add_entity(obs1)
 
 obs2_shape = pv.shape.RegularTriangle(2.0)
 obs2 = world.Entity(
-    world.Transform(position=pv.math.Point(7.5, -5.0), anchor=(0.0, 0.0), rotation=45),
+    world.Transform(position=pv.math.Point(7.5, -5.0), anchor=(0.5, 0.5), rotation=45),
     world.ShapeRenderer(shape=obs2_shape, filling_color=(60, 60, 80), z=10),
     world.Collider(shape=obs2_shape),
     world.RigidBody(restitution=0.4, friction=0.3)
@@ -159,10 +159,9 @@ ball1 = world.Entity(
     world.Transform(position=pv.math.Point(-20.0, 15.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=ball1_shape, filling_color=(80, 180, 220)),
     world.Collider(shape=ball1_shape),
-    world.RigidBody(mass=10.0, friction=0.2, restitution=0.75)
+    world.RigidBody(mass=10.0, friction=0.2, restitution=0.75),
 )
 main_world.add_entity(ball1)
-ball1.get(world.RigidBody).apply_force(pv.math.Vector(6000.0, 0.0))
 
 ball2_shape = pv.shape.Circle(0.7)
 ball2 = world.Entity(
@@ -172,7 +171,6 @@ ball2 = world.Entity(
     world.RigidBody(mass=5.0, friction=0.15, restitution=0.8)
 )
 main_world.add_entity(ball2)
-ball2.get(world.RigidBody).apply_force(pv.math.Vector(-4000.0, 2000.0))
 
 rect1_shape = pv.shape.Rect(2.75, 2.0)
 rect1 = world.Entity(
@@ -223,6 +221,15 @@ tri1.get(world.RigidBody).apply_force(pv.math.Vector(3000.0, 1000.0))
 
 # ======================================== PLAYER ========================================
 player = Player(main_world, pv.math.Point(0.0, 10.0))
+
+follower_shape = pv.shape.Circle(1.5)
+follower = world.Entity(
+    world.Transform(position=(0, 0)),
+    world.ShapeRenderer(shape=follower_shape, filling_color=(255, 0, 255), border_width=0.05),
+    world.Follow(player.entity, force=100, radius_min=6, radius_max=7, damping=3),
+    world.RigidBody(mass=1, gravity=False)
+)
+main_world.add_entity(follower)
 
 # ======================================== CAMERA ========================================
 def cam_left(): camera.move(pv.math.Vector(-10, 0))
@@ -295,9 +302,8 @@ main_scene.add_layer(pv.scene.TileLayer(border), z=3)
 pv.tile.CollisionMapper(border).inject(main_world)
 
 # ======================================== GUI ========================================
-gui_layer = pv.scene.GuiLayer(camera=(gui_camera := Camera()))
+gui_layer = pv.scene.GuiLayer(camera=(gui_camera := Camera(anchor=(0, 0))))
 main_scene.add_layer(gui_layer, z=50)
-gui_layer.hide()
 
 back_shape = pv.shape.Rect(500, 200)
 back = pv.gui.Surface(
@@ -360,6 +366,7 @@ def on_deselect():
 # ======================================== LIFE CYCLE ========================================
 def on_update(dt: float):
     """Boucle principale"""
+    pass
 
 def on_draw():
     """Boucle d'affichage"""
