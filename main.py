@@ -3,6 +3,8 @@ from pyverse2d import Window, LogicalScreen, Viewport, Camera
 from pyverse2d import world
 from pyverse2d import scene
 
+import math
+
 # ======================================== FENÊTRE ========================================
 screen = LogicalScreen()
 window = Window(screen=screen, caption="PyVerse2D - Demo", vsync=True)
@@ -222,20 +224,30 @@ tri1.get(world.RigidBody).apply_force(pv.math.Vector(3000.0, 1000.0))
 # ======================================== PLAYER ========================================
 player = Player(main_world, pv.math.Point(0.0, 10.0))
 
-follower_shape = pv.shape.Circle(1.5)
+follower_shape = pv.shape.Circle(1)
+follow_image = pv.asset.Image("assets/drone_0.png", height=2.5)
 follower = world.Entity(
-    world.Transform(position=(0, 0)),
-    world.ShapeRenderer(shape=follower_shape, filling_color=(255, 0, 255), border_width=0.05),
-    world.Follow(player.entity, force=100, radius_min=6, radius_max=7, damping=3),
+    world.Transform(position=(50, 0)),
+    world.SpriteRenderer(image=follow_image),
+    world.Collider(shape=follower_shape),
+    world.Follow(player.entity, force=100, radius_min=6, radius_max=7, damping=3, angle=90, cone=75, cone_gap=15),
     world.RigidBody(mass=1, gravity=False)
 )
 main_world.add_entity(follower)
 
+def follower_update(dt) -> None:
+    """Actualisation du suiveur"""
+    dx = player.entity.transform.position.x - follower.transform.position.x
+    if dx >= 0:
+        follower.sprite_renderer.flip_x = False
+    else:
+        follower.sprite_renderer.flip_x = True
+
 # ======================================== CAMERA ========================================
-def cam_left(): camera.move(pv.math.Vector(-10, 0))
-def cam_right(): camera.move(pv.math.Vector(10, 0))
-def cam_down(): camera.move(pv.math.Vector(0, -10))
-def cam_up(): camera.move(pv.math.Vector(0, 10))
+def cam_left(): camera.move(pv.math.Vector(-1.0, 0))
+def cam_right(): camera.move(pv.math.Vector(1.0, 0))
+def cam_down(): camera.move(pv.math.Vector(0, -1.0))
+def cam_up(): camera.move(pv.math.Vector(0, 1.0))
 
 camlock = "free"
 def switch_camlock():
@@ -276,12 +288,12 @@ stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=1.
 # Background
 background = stage_0["background"]
 background.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(background, camera=(background_camera := Camera.derived_from(camera, parallax_x=0.5)), clip_camera=camera), z=-2)
+main_scene.add_layer(pv.scene.TileLayer(background, camera=(background_camera := Camera.derived_from(camera, parallax_x=0.3)), clip_camera=camera), z=-2)
 
 # Parallax
 parallax = stage_0["parallax"]
 parallax.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(parallax, camera=(parallax_camera := Camera.derived_from(camera, parallax_x=0.75)), clip_camera=camera), z=-1)
+main_scene.add_layer(pv.scene.TileLayer(parallax, camera=(parallax_camera := Camera.derived_from(camera, parallax_x=0.6)), clip_camera=camera), z=-1)
 
 # Ground
 ground = stage_0["ground"]
@@ -363,14 +375,18 @@ def on_select():
 def on_deselect():
     print("deselect")
 
+# ======================================== FX ========================================
+light_layer = pv.scene.LightLayer(ambient=1.0)
+main_scene.add_layer(light_layer, z=-1)
+
 # ======================================== LIFE CYCLE ========================================
 def on_update(dt: float):
     """Boucle principale"""
-    pass
+    follower_update(dt)
+    light_layer.ambient = ((math.sin(pv.time.timer / 5) + 1) / 2 + 1) / 2
 
 def on_draw():
     """Boucle d'affichage"""
-    pass
 
 # ======================================== LAUNCHING ========================================
 pv.preload()
