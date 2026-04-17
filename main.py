@@ -17,7 +17,7 @@ hh = H * 0.5
 
 # ======================================== SCENE ========================================
 camera = Camera(anchor=(0.5, 0.5), view_height=48)
-viewport = Viewport(origin=(0.5, 0.5), direction=(1.0, 1.0))
+viewport = Viewport(position=(100.0, 0.0), width=1920, height=1080, origin=(0.5, 0.5), direction=(1.0, 1.0))
 main_scene = scene.Scene(camera=camera, viewport=viewport, stack_mode=scene.StackMode.PAUSE)
 scene.push(scene=main_scene)
 
@@ -39,7 +39,6 @@ class Player:
         self._entity = world.Entity(
             world.Transform(position=position, anchor=(0.5, 0.0), rotation=0),
             world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", height=img_height), z=15),
-            world.ShapeRenderer(shape=self._shape),
             world.Animator(),
             world.Collider(shape=self._shape),
             world.RigidBody(mass=50.0, friction=0.35, restitution=0.1),
@@ -230,12 +229,12 @@ follower = world.Entity(
     world.Transform(position=(50, 0)),
     world.SpriteRenderer(image=follow_image),
     world.Collider(shape=follower_shape),
-    world.Follow(player.entity, force=100, radius_min=6, radius_max=7, damping=3, angle=90, cone=75, cone_gap=15),
+    world.Follow(player.entity, force=100, radius_min=6, radius_max=7, damping=3, angle=90, cone=60, cone_gap=15),
     world.RigidBody(mass=1, gravity=False)
 )
 main_world.add_entity(follower)
 
-def follower_update(dt) -> None:
+def follower_update(dt: float) -> None:
     """Actualisation du suiveur"""
     dx = player.entity.transform.position.x - follower.transform.position.x
     if dx >= 0:
@@ -244,10 +243,28 @@ def follower_update(dt) -> None:
         follower.sprite_renderer.flip_x = True
 
 # ======================================== CAMERA ========================================
-def cam_left(): camera.move(pv.math.Vector(-1.0, 0))
-def cam_right(): camera.move(pv.math.Vector(1.0, 0))
-def cam_down(): camera.move(pv.math.Vector(0, -1.0))
-def cam_up(): camera.move(pv.math.Vector(0, 1.0))
+v_left = pv.math.Vector(-0.5, 0)
+v_right = pv.math.Vector(0.5, 0)
+v_down = pv.math.Vector(0, -0.5)
+v_up = pv.math.Vector(0, 0.5)
+v_downleft = (v_down + v_left).normalized * 0.5
+v_downright = (v_down + v_right).normalized * 0.5
+v_upright = (v_up + v_right).normalized * 0.5
+v_upleft = (v_up + v_left).normalized * 0.5
+
+def cam_left(): camera.move(v_left)
+def cam_right(): camera.move(v_right)
+def cam_down(): camera.move(v_down)
+def cam_up(): camera.move(v_up)
+def cam_downleft(): camera.move(v_downleft)
+def cam_downright(): camera.move(v_downright)
+def cam_upright(): camera.move(v_upright)
+def cam_upleft(): camera.move(v_upleft)
+
+def cam_horizontal() -> int:
+    return pv.key.is_pressed(pv.key.K_RIGHT) or pv.key.is_pressed(pv.key.K_LEFT)
+def cam_vertical() -> int:
+    return pv.key.is_pressed(pv.key.K_UP) or pv.key.is_pressed(pv.key.K_DOWN)
 
 camlock = "free"
 def switch_camlock():
@@ -267,10 +284,15 @@ pv.inputs.add_listener(pv.key.K_SPACE, player.jump)
 pv.inputs.add_listener(pv.key.K_Q, player.move_left,  repeat=True)
 pv.inputs.add_listener(pv.key.K_D, player.move_right, repeat=True)
 
-pv.inputs.add_listener(pv.key.K_LEFT, cam_left, repeat=True)
-pv.inputs.add_listener(pv.key.K_RIGHT, cam_right, repeat=True)
-pv.inputs.add_listener(pv.key.K_DOWN, cam_down, repeat=True)
-pv.inputs.add_listener(pv.key.K_UP, cam_up, repeat=True)
+pv.inputs.add_listener(pv.key.K_LEFT, cam_left, repeat=True, condition=lambda: not cam_vertical())
+pv.inputs.add_listener(pv.key.K_RIGHT, cam_right, repeat=True, condition=lambda: not cam_vertical())
+pv.inputs.add_listener(pv.key.K_DOWN, cam_down, repeat=True, condition=lambda: not cam_horizontal())
+pv.inputs.add_listener(pv.key.K_UP, cam_up, repeat=True, condition=lambda: not cam_horizontal())
+
+pv.inputs.when_all_of([pv.key.K_LEFT, pv.key.K_DOWN], cam_downleft, repeat=True)
+pv.inputs.when_all_of([pv.key.K_DOWN, pv.key.K_RIGHT], cam_downright, repeat=True)
+pv.inputs.when_all_of([pv.key.K_RIGHT, pv.key.K_UP], cam_upright, repeat=True)
+pv.inputs.when_all_of([pv.key.K_UP, pv.key.K_LEFT], cam_upleft, repeat=True)
 
 pv.inputs.add_listener(pv.key.K_L, switch_camlock)
     
@@ -376,19 +398,29 @@ def on_deselect():
     print("deselect")
 
 # ======================================== FX ========================================
-light_layer = pv.scene.LightLayer(ambient=1.0)
+# Light
+light_layer = pv.scene.LightLayer(ambient=0.3, light_scale=2.0)
 main_scene.add_layer(light_layer, z=-1)
+
+light_layer.add_source(light_point := pv.fx.PointLight(position=player.entity.transform.position.copy(), radius=10, intensity=1.0, falloff=pv.math.easing.ease_out_bounce))
+light_point.attach_to(player.entity.transform, offset=(0,  2))
+
+light_layer.add_source(light_cone0 := pv.fx.ConeLight(position=(20.0, 50.0), intensity=0.35, direction=(1.0, -2.0), radius=0.0, angle=20, softness=1.0, falloff=None))
+light_layer.add_source(light_cone1 := pv.fx.ConeLight(position=(-20.0, 50.0), intensity=0.35, direction=(-1.0, -2.0), radius=0.0, angle=20, softness=1.0, falloff=None))
+light_layer.add_source(light_cone2 := pv.fx.ConeLight(position=(0.0, 50.0), intensity=0.35, direction=(0, -2.0), radius=0.0, angle=20, softness=1.0, falloff=None))
+
 
 # ======================================== LIFE CYCLE ========================================
 def on_update(dt: float):
     """Boucle principale"""
     follower_update(dt)
-    light_layer.ambient = ((math.sin(pv.time.timer / 5) + 1) / 2 + 1) / 2
 
 def on_draw():
     """Boucle d'affichage"""
+    light_cone2.direction.x = math.sin(pv.time.timer) * 0.5
+    light_cone2.direction.normalize
 
 # ======================================== LAUNCHING ========================================
 pv.preload()
-pv.time.target_fps = 90
+pv.time.target_fps = 900
 pv.run(on_update, on_draw)
