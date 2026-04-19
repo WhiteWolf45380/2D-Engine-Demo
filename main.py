@@ -16,8 +16,8 @@ hw = W * 0.5
 hh = H * 0.5
 
 # ======================================== SCENE ========================================
-camera = Camera(anchor=(0.5, 0.5), view_height=48)
-viewport = Viewport(position=(100.0, 0.0), width=1920, height=1080, origin=(0.5, 0.5), direction=(1.0, 1.0))
+camera = Camera(anchor=(0.5, 0.5), view_width=85, view_height=48)
+viewport = Viewport(position=(0.0, 0.0), width=1920, height=1080, origin=(0.5, 0.5), direction=(1.0, 1.0))
 main_scene = scene.Scene(camera=camera, viewport=viewport, stack_mode=scene.StackMode.PAUSE)
 scene.push(scene=main_scene)
 
@@ -342,9 +342,10 @@ main_scene.add_layer(gui_layer, z=50)
 back_shape = pv.shape.Rect(500, 200)
 back = pv.gui.Surface(
     shape=back_shape,
-    position=pv.math.Point(0.0, 0.0),
+    position=pv.math.Point(960.0, 540.0),
     anchor=(0.5, 0.5),
     color=(255, 255, 255),
+    clipping=True,
 )
 gui_layer.add(back, name="back", z=0)
 
@@ -377,6 +378,8 @@ back.add_behavior(hover_behavior := pv.gui.HoverBehavior())
 back.add_behavior(click_behavior := pv.gui.ClickBehavior())
 back.add_behavior(select_behavior := pv.gui.SelectBehavior(selection_group=selection))
 
+hover_behavior.add_tween(scale_tween := pv.gui.ScaleTween(target_value=1.1, duration=0))
+
 @hover_behavior.on_enter
 def on_hover_enter():
     print("Hover enter")
@@ -399,15 +402,15 @@ def on_deselect():
 
 # ======================================== FX ========================================
 # Light
-light_layer = pv.scene.LightLayer(ambient=0.3, light_scale=2.0)
+light_layer = pv.scene.LightLayer(ambient=0.3, exposure=3.0)
 main_scene.add_layer(light_layer, z=-1)
 
 light_layer.add_source(light_point := pv.fx.PointLight(position=player.entity.transform.position.copy(), radius=10, intensity=1.0, falloff=pv.math.easing.ease_out_bounce))
 light_point.attach_to(player.entity.transform, offset=(0,  2))
 
-light_layer.add_source(light_cone0 := pv.fx.ConeLight(position=(20.0, 50.0), intensity=0.35, direction=(1.0, -2.0), radius=0.0, angle=20, softness=1.0, falloff=None))
-light_layer.add_source(light_cone1 := pv.fx.ConeLight(position=(-20.0, 50.0), intensity=0.35, direction=(-1.0, -2.0), radius=0.0, angle=20, softness=1.0, falloff=None))
-light_layer.add_source(light_cone2 := pv.fx.ConeLight(position=(0.0, 50.0), intensity=0.35, direction=(0, -2.0), radius=0.0, angle=20, softness=1.0, falloff=None))
+light_layer.add_source(light_cone0 := pv.fx.ConeLight(position=(20.0, 50.0), intensity=1.0, direction=(1.0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
+light_layer.add_source(light_cone1 := pv.fx.ConeLight(position=(-20.0, 50.0), intensity=1.0, direction=(-1.0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
+light_layer.add_source(light_cone2 := pv.fx.ConeLight(position=(0.0, 50.0), intensity=1.0, direction=(0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
 
 
 # ======================================== LIFE CYCLE ========================================
@@ -418,7 +421,7 @@ def on_update(dt: float):
 def on_draw():
     """Boucle d'affichage"""
     light_cone2.direction.x = math.sin(pv.time.timer) * 0.5
-    light_cone2.direction.normalize
+    light_cone2.direction.normalize()
 
 # ======================================== LAUNCHING ========================================
 pv.preload()
