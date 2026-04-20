@@ -1,3 +1,4 @@
+# ======================================== IMPORTS ========================================
 import pyverse2d as pv
 from pyverse2d import Window, LogicalScreen, Viewport, Camera
 from pyverse2d import world
@@ -378,7 +379,7 @@ back.add_behavior(hover_behavior := pv.gui.HoverBehavior())
 back.add_behavior(click_behavior := pv.gui.ClickBehavior())
 back.add_behavior(select_behavior := pv.gui.SelectBehavior(selection_group=selection))
 
-hover_behavior.add_tween(scale_tween := pv.gui.ScaleTween(target_value=1.1, duration=0))
+hover_behavior.add_tween(scale_tween := pv.gui.ScaleTween(target_value=2.0, duration=0))
 
 @hover_behavior.on_enter
 def on_hover_enter():
@@ -411,7 +412,6 @@ light_point.attach_to(player.entity.transform, offset=(0,  2))
 light_layer.add_source(light_cone0 := pv.fx.ConeLight(position=(20.0, 50.0), intensity=1.0, direction=(1.0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
 light_layer.add_source(light_cone1 := pv.fx.ConeLight(position=(-20.0, 50.0), intensity=1.0, direction=(-1.0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
 light_layer.add_source(light_cone2 := pv.fx.ConeLight(position=(0.0, 50.0), intensity=1.0, direction=(0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
-
 
 # ======================================== LIFE CYCLE ========================================
 def on_update(dt: float):
