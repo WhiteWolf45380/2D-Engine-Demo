@@ -380,6 +380,7 @@ back.add_behavior(click_behavior := pv.gui.ClickBehavior())
 back.add_behavior(select_behavior := pv.gui.SelectBehavior(selection_group=selection))
 
 hover_behavior.add_tween(scale_tween := pv.gui.ScaleTween(target_value=2, duration=0.3, easing=pv.math.easing.ease_in_out_cubic))
+hover_behavior.add_tween(color_tween := pv.gui.ColorTween(target_value=(255, 0, 255), duration=1, easing=pv.math.easing.ease_in_expo))
 
 @hover_behavior.on_enter
 def on_hover_enter():
@@ -417,6 +418,7 @@ light_layer.add_source(light_cone2 := pv.fx.ConeLight(position=(0.0, 50.0), inte
 def on_update(dt: float):
     """Boucle principale"""
     follower_update(dt)
+    print(round(pv.time.smooth_fps))
 
 def on_draw():
     """Boucle d'affichage"""
