@@ -379,7 +379,7 @@ back.add_behavior(hover_behavior := pv.gui.HoverBehavior())
 back.add_behavior(click_behavior := pv.gui.ClickBehavior())
 back.add_behavior(select_behavior := pv.gui.SelectBehavior(selection_group=selection))
 
-hover_behavior.add_tween(scale_tween := pv.gui.ScaleTween(target_value=2.0, duration=0))
+hover_behavior.add_tween(scale_tween := pv.gui.ScaleTween(target_value=2, duration=0.3, easing=pv.math.easing.ease_in_out_cubic))
 
 @hover_behavior.on_enter
 def on_hover_enter():
