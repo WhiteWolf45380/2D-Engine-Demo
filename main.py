@@ -343,12 +343,13 @@ main_scene.add_layer(gui_layer, z=50)
 back_shape = pv.shape.Rect(500, 200)
 back = pv.gui.Surface(
     shape=back_shape,
-    position=pv.math.Point(960.0, 540.0),
+    position=pv.math.Point(0.0, 0.0),
     anchor=(0.5, 0.5),
+    scale=3.0,
+    rotation=45,
     color=(255, 255, 255),
-    clipping=True,
+    clipping=False,
 )
-gui_layer.add(back, name="back", z=0)
 
 text = pv.asset.Text("That's how it works", pv.asset.Font(size=32))
 label = pv.gui.Label(
@@ -357,7 +358,6 @@ label = pv.gui.Label(
     anchor=pv.math.Point(0.5, 0.5),
     color=pv.asset.Color(0, 0, 0),
 )
-back.add_child(label, name="label", z=2)
 
 image = pv.asset.Image("map/assets/ground_tile.png", scale_factor=3.0)
 sprite = pv.gui.Sprite(
@@ -369,18 +369,23 @@ sprite = pv.gui.Sprite(
     rotation=45,
     color=(1.0, 0, 0)
 )
-back.add_child(sprite, name="sprite", z=1)
 
 border = pv.gui.Border(shape=back_shape, position=(0, 0), anchor=(0.5, 0.5), width=1, align="in")
-back.add_child(border, "border", z=10)
 
 selection = pv.gui.SelectionGroup(name="my_selection", limit=1, replace=True, deselectable=True)
-back.add_behavior(hover_behavior := pv.gui.HoverBehavior())
-back.add_behavior(click_behavior := pv.gui.ClickBehavior())
-back.add_behavior(select_behavior := pv.gui.SelectBehavior(selection_group=selection))
 
-hover_behavior.add_tween(scale_tween := pv.gui.ScaleTween(target_value=2, duration=0.3, easing=pv.math.easing.ease_in_out_cubic))
-hover_behavior.add_tween(color_tween := pv.gui.ColorTween(target_value=(255, 0, 255), duration=1, easing=pv.math.easing.ease_in_expo))
+def button_callback(id=None):
+    print("triggered button ", id)
+
+def button_condition():
+    return True
+
+button = pv.gui.Button(back, position=(screen.centerx, screen.centery), callback=button_callback, condition=button_condition, id="TestButton", give_id=True)
+gui_layer.add(button, name="button", z=0)
+
+hover_behavior = button.hover
+click_behavior = button.click
+button.add_behavior(select_behavior := pv.gui.SelectBehavior(selection))
 
 @hover_behavior.on_enter
 def on_hover_enter():
@@ -418,7 +423,6 @@ light_layer.add_source(light_cone2 := pv.fx.ConeLight(position=(0.0, 50.0), inte
 def on_update(dt: float):
     """Boucle principale"""
     follower_update(dt)
-    print(round(pv.time.smooth_fps))
 
 def on_draw():
     """Boucle d'affichage"""
