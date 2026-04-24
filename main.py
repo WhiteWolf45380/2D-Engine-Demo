@@ -1,5 +1,6 @@
 # ======================================== IMPORTS ========================================
 import pyverse2d as pv
+import pyverse2d.gui as gui
 from pyverse2d import Window, LogicalScreen, Viewport, Camera
 from pyverse2d import world
 from pyverse2d import scene
@@ -230,7 +231,7 @@ follower = world.Entity(
     world.Transform(position=(50, 0)),
     world.SpriteRenderer(image=follow_image),
     world.Collider(shape=follower_shape),
-    world.Follow(player.entity, force=100, radius_min=6, radius_max=7, damping=3, angle=90, cone=60, cone_gap=15),
+    world.Follow(player.entity, offset=pv.math.Vector(0.0, player._shape.height / 2), force=100, radius_min=6, radius_max=7, damping=3, angle=90, cone=60, cone_gap=15),
     world.RigidBody(mass=1, gravity=False)
 )
 main_world.add_entity(follower)
@@ -340,72 +341,17 @@ pv.tile.CollisionMapper(border).inject(main_world)
 gui_layer = pv.scene.GuiLayer(camera=(gui_camera := Camera(anchor=(0, 0))))
 main_scene.add_layer(gui_layer, z=50)
 
-back_shape = pv.shape.Rect(500, 200)
-back = pv.gui.Surface(
-    shape=back_shape,
-    position=pv.math.Point(0.0, 0.0),
-    anchor=(0.5, 0.5),
-    scale=3.0,
-    rotation=45,
-    color=(255, 255, 255),
-    clipping=False,
-)
+on = gui.Surface(shape=(surface_shape := pv.shape.Rect(320, 180)), color=(0, 255, 0))
+off = gui.Surface(shape=surface_shape, color=(255, 0, 0))
 
-text = pv.asset.Text("That's how it works", pv.asset.Font(size=32))
-label = pv.gui.Label(
-    text=text,
-    position=pv.math.Point(0.0, 0.0),
-    anchor=pv.math.Point(0.5, 0.5),
-    color=pv.asset.Color(0, 0, 0),
-)
+def toggle_cb(state: bool, id=None):
+    print(f"tiggered toggle ({id}), state=", state)
 
-image = pv.asset.Image("map/assets/ground_tile.png", scale_factor=3.0)
-sprite = pv.gui.Sprite(
-    image=image,
-    position=(0.0, 0.0),
-    anchor=(0.5, 0.5),
-    flip_x=False,
-    flip_y=False,
-    rotation=45,
-    color=(1.0, 0, 0)
-)
-
-border = pv.gui.Border(shape=back_shape, position=(0, 0), anchor=(0.5, 0.5), width=1, align="in")
-
-selection = pv.gui.SelectionGroup(name="my_selection", limit=1, replace=True, deselectable=True)
-
-def button_callback(id=None):
-    print("triggered button ", id)
-
-def button_condition():
+def toggle_condition():
     return True
 
-button = pv.gui.Button(back, position=(screen.centerx, screen.centery), callback=button_callback, condition=button_condition, id="TestButton", give_id=True)
-gui_layer.add(button, name="button", z=0)
-
-hover_behavior = button.hover
-click_behavior = button.click
-button.add_behavior(select_behavior := pv.gui.SelectBehavior(selection))
-
-@hover_behavior.on_enter
-def on_hover_enter():
-    print("Hover enter")
-
-@hover_behavior.on_leave
-def on_hover_leave():
-    print("Hover leave")
-
-def on_click():
-    print("Clicked")
-click_behavior.add(callback=on_click)
-
-@select_behavior.on_select
-def on_select():
-    print("select")
-
-@select_behavior.on_deselect
-def on_deselect():
-    print("deselect")
+toggle = gui.ToggleButton(on, off, position=(screen.centerx, screen.centery), callback=toggle_cb, condition=toggle_condition, id="toggle_id", give_id=True)
+gui_layer.add(toggle)
 
 # ======================================== FX ========================================
 # Light
@@ -418,6 +364,12 @@ light_point.attach_to(player.entity.transform, offset=(0,  2))
 light_layer.add_source(light_cone0 := pv.fx.ConeLight(position=(20.0, 50.0), intensity=1.0, direction=(1.0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
 light_layer.add_source(light_cone1 := pv.fx.ConeLight(position=(-20.0, 50.0), intensity=1.0, direction=(-1.0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
 light_layer.add_source(light_cone2 := pv.fx.ConeLight(position=(0.0, 50.0), intensity=1.0, direction=(0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
+
+# ======================================== AUDIO ========================================
+musics = pv.audio.load_musics("assets/audio/musics", extensions=[".mp3"], volume=1.0)
+print(musics)
+
+pv.audio.play_music(musics["title_screen"], loop=True, fade_s=5, fade_easing=pv.math.easing.ease_in_out_elastic)
 
 # ======================================== LIFE CYCLE ========================================
 def on_update(dt: float):
