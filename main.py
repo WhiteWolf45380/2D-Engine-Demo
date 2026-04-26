@@ -1,7 +1,7 @@
 # ======================================== IMPORTS ========================================
 import pyverse2d as pv
 import pyverse2d.gui as gui
-from pyverse2d import Window, LogicalScreen, Viewport, Camera
+from pyverse2d import Window, LogicalScreen, Viewport, Camera, time
 from pyverse2d import world
 from pyverse2d import scene
 
@@ -41,6 +41,7 @@ class Player:
         self._entity = world.Entity(
             world.Transform(position=position, anchor=(0.5, 0.0), rotation=0),
             world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", height=img_height), z=15),
+            world.ShapeRenderer(shape=self._shape),
             world.Animator(),
             world.Collider(shape=self._shape),
             world.RigidBody(mass=50.0, friction=0.35, restitution=0.1),
@@ -157,18 +158,18 @@ obs2 = world.Entity(
 )
 main_world.add_entity(obs2)
 
-ball1_shape = pv.shape.Circle(1.0)
+ball1_shape = pv.shape.Circle(3.0)
 ball1 = world.Entity(
-    world.Transform(position=pv.math.Point(-20.0, 15.0), anchor=(0.5, 0.5)),
+    world.Transform(position=pv.math.Point(-15.0, 15.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=ball1_shape, filling_color=(80, 180, 220)),
     world.Collider(shape=ball1_shape),
     world.RigidBody(mass=10.0, friction=0.2, restitution=0.75),
 )
 main_world.add_entity(ball1)
 
-ball2_shape = pv.shape.Circle(0.7)
+ball2_shape = pv.shape.Circle(2.7)
 ball2 = world.Entity(
-    world.Transform(position=pv.math.Point(20.0, 15.0), anchor=(0.5, 0.5)),
+    world.Transform(position=pv.math.Point(15.0, 15.0), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=ball2_shape, filling_color=(80, 220, 140)),
     world.Collider(shape=ball2_shape),
     world.RigidBody(mass=5.0, friction=0.15, restitution=0.8)
@@ -184,7 +185,7 @@ rect1 = world.Entity(
 )
 main_world.add_entity(rect1)
 
-rect2_shape = pv.shape.Rect(1.75, 1.25)
+rect2_shape = pv.shape.Rect(3.75, 2.25)
 rect2 = world.Entity(
     world.Transform(position=pv.math.Point(10.0, 17.5), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=rect2_shape, filling_color=(220, 220, 80)),
@@ -193,7 +194,7 @@ rect2 = world.Entity(
 )
 main_world.add_entity(rect2)
 
-ellipse_shape = pv.shape.Ellipse(1.4, 0.7)
+ellipse_shape = pv.shape.Ellipse(2.4, 1.5)
 ellipse = world.Entity(
     world.Transform(position=pv.math.Point(0.0, 17.5), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=ellipse_shape, filling_color=(80, 220, 220)),
@@ -203,7 +204,7 @@ ellipse = world.Entity(
 main_world.add_entity(ellipse)
 ellipse.get(world.RigidBody).apply_force(pv.math.Vector(2000.0, 0.0))
 
-hex1_shape = pv.shape.RegularHexagon(1.25)
+hex1_shape = pv.shape.RegularHexagon(5)
 hex1 = world.Entity(
     world.Transform(position=pv.math.Point(5.0, 17.5), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=hex1_shape, filling_color=(220, 80, 180)),
@@ -212,7 +213,7 @@ hex1 = world.Entity(
 )
 main_world.add_entity(hex1)
 
-tri1_shape = pv.shape.RegularTriangle(1.4)
+tri1_shape = pv.shape.RegularTriangle(5)
 tri1 = world.Entity(
     world.Transform(position=pv.math.Point(-5.0, 17.5), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=tri1_shape, filling_color=(180, 220, 80)),
@@ -337,22 +338,6 @@ border.anchor = (0.5, 0.5)
 main_scene.add_layer(pv.scene.TileLayer(border), z=3)
 pv.tile.CollisionMapper(border).inject(main_world)
 
-# ======================================== GUI ========================================
-gui_layer = pv.scene.GuiLayer(camera=(gui_camera := Camera(anchor=(0, 0))))
-main_scene.add_layer(gui_layer, z=50)
-
-on = gui.Surface(shape=(surface_shape := pv.shape.Rect(320, 180)), color=(0, 255, 0))
-off = gui.Surface(shape=surface_shape, color=(255, 0, 0))
-
-def toggle_cb(state: bool, id=None):
-    print(f"tiggered toggle ({id}), state=", state)
-
-def toggle_condition():
-    return True
-
-toggle = gui.ToggleButton(on, off, position=(screen.centerx, screen.centery), callback=toggle_cb, condition=toggle_condition, id="toggle_id", give_id=True)
-gui_layer.add(toggle)
-
 # ======================================== FX ========================================
 # Light
 light_layer = pv.scene.LightLayer(ambient=0.3, exposure=3.0)
@@ -366,10 +351,17 @@ light_layer.add_source(light_cone1 := pv.fx.ConeLight(position=(-20.0, 50.0), in
 light_layer.add_source(light_cone2 := pv.fx.ConeLight(position=(0.0, 50.0), intensity=1.0, direction=(0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
 
 # ======================================== AUDIO ========================================
-musics = pv.audio.load_musics("assets/audio/musics", extensions=[".mp3"], volume=1.0)
-print(musics)
+sounds = pv.audio.load_sounds("assets/audio/sounds", extensions=[".wav"], volume=1.0, cooldown=0.5)
+print("Loaded sounds:", sounds.keys())
 
-pv.audio.play_music(musics["title_screen"], loop=True, fade_s=5, fade_easing=pv.math.easing.ease_in_out_elastic)
+musics = pv.audio.load_musics("assets/audio/musics", extensions=[".ogg"], volume=1.0).preload()
+print("Loaded musics:", musics.keys())
+
+click = pv.asset.Sound.from_variations("assets/audio/sounds", prefix="click_", extensions=[".wav"], volume=1.0, cooldown=0.2)
+pv.inputs.add_listener(pv.mouse.B_LEFT, click.play)
+
+pv.audio.play_music(musics.random(), loop=True, fade_s=2.0)
+pv.time.every(10.0, lambda: pv.audio.switch_music(musics.random(), loop=True, fade_s=5.0, fade_easing=pv.math.easing.ease_out_circ))
 
 # ======================================== LIFE CYCLE ========================================
 def on_update(dt: float):
