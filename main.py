@@ -41,11 +41,11 @@ class Player:
         self._entity = world.Entity(
             world.Transform(position=position, anchor=(0.5, 0.0), rotation=0),
             world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", height=img_height), z=15),
-            world.ShapeRenderer(shape=self._shape),
             world.Animator(),
             world.Collider(shape=self._shape),
-            world.RigidBody(mass=50.0, friction=0.35, restitution=0.1),
-            world.GroundSensor(threshold=0.2, ground_damping=4.0, max_step_height=0.75, coyote_time=0.03)
+            world.RigidBody(mass=50.0, friction=0.35, restitution=0.2),
+            world.GroundSensor(threshold=0.2, ground_damping=4.0, max_step_height=0.75, coyote_time=0.03),
+            world.SoundEmitter(volume=1.0, ),
         )
         world_.add_entity(self._entity)
         
@@ -199,7 +199,7 @@ ellipse = world.Entity(
     world.Transform(position=pv.math.Point(0.0, 17.5), anchor=(0.5, 0.5)),
     world.ShapeRenderer(shape=ellipse_shape, filling_color=(80, 220, 220)),
     world.Collider(shape=ellipse_shape),
-    world.RigidBody(mass=200.0, friction=0.25, restitution=0.6)
+    world.RigidBody(mass=50.0, friction=0.25, restitution=0.8)
 )
 main_world.add_entity(ellipse)
 ellipse.get(world.RigidBody).apply_force(pv.math.Vector(2000.0, 0.0))
@@ -303,9 +303,10 @@ pv.inputs.add_listener(pv.key.K_L, switch_camlock)
 main_world.add_system(world.RenderSystem())
 main_world.add_system(world.PhysicsSystem())
 main_world.add_system(world.GravitySystem(pv.math.Vector(0.0, -9.8)))
-main_world.add_system(world.CollisionSystem(slop=0.025, max_position_correction=0.4, extra_iterations_threshold=0.2, restitution_threshold=0.05, restitution_max_velocity=0.5, vel_along_wake_treshold=0.02))
+main_world.add_system(world.CollisionSystem(slop=0.025, iterations=6, max_position_correction=0.4, extra_iterations_threshold=0.2, restitution_threshold=0.05, restitution_max_velocity=0.5, vel_along_wake_treshold=0.02))
 main_world.add_system(world.AnimationSystem())
 main_world.add_system(world.SteeringSystem())
+main_world.add_system(world.SoundSystem(origin=camera))
 
 # ======================================== MAP ========================================
 stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=1.5, tile_height=1.5)
@@ -360,8 +361,12 @@ print("Loaded musics:", musics.keys())
 click = pv.asset.Sound.from_variations("assets/audio/sounds", prefix="click_", extensions=[".wav"], volume=1.0, cooldown=0.2)
 pv.inputs.add_listener(pv.mouse.B_LEFT, click.play)
 
+"""
 pv.audio.play_music(musics.random(), loop=True, fade_s=2.0)
-pv.time.every(10.0, lambda: pv.audio.switch_music(musics.random(), loop=True, fade_s=5.0, fade_easing=pv.math.easing.ease_out_circ))
+pv.time.every(10.0, lambda: pv.audio.switch_music(musics.random(), loop=True, fade_s=2.0))
+"""
+
+player.entity.sound_emitter.play(musics.random())
 
 # ======================================== LIFE CYCLE ========================================
 def on_update(dt: float):
