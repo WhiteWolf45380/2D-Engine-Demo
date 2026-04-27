@@ -45,7 +45,7 @@ class Player:
             world.Collider(shape=self._shape),
             world.RigidBody(mass=50.0, friction=0.35, restitution=0.2),
             world.GroundSensor(threshold=0.2, ground_damping=4.0, max_step_height=0.75, coyote_time=0.03),
-            world.SoundEmitter(volume=1.0, ),
+            world.SoundEmitter(volume=1.0, inner_radius=10, outer_radius=50),
         )
         world_.add_entity(self._entity)
         
@@ -53,6 +53,7 @@ class Player:
         self._animator.register(world.Animator.AnimationRequest(self._animation, loop=True, cutable=True, condition=self.is_running))
 
         self._direction = "right"
+        self._load_sounds()
 
     @property
     def entity(self) -> world.Entity:
@@ -69,6 +70,10 @@ class Player:
     @property
     def gs(self) -> world.GroundSensor:
         return self._entity.ground_sensor
+    
+    @property
+    def se(self) -> world.SoundEmitter:
+        return self._entity.sound_emitter
 
     @property
     def position(self) -> pv.math.Point:
@@ -93,6 +98,14 @@ class Player:
     
     def is_running(self) -> bool:
         return self.is_grounded() and abs(self.rb.velocity.x) > 1.0
+    
+    def update(self, dt: float) -> None:
+        if self.is_running():
+            self.se.emit("footsteps")
+
+    def _load_sounds(self) -> None:
+        footsteps = pv.asset.Sound.from_variations("assets/audio/sounds", "footstep_", cooldown=0.4, volume=2)
+        self.se.register(footsteps, "footsteps")
 
 # ======================================== STRUCTURE ========================================
 r1_shape = pv.shape.Rect(20.0, 1.25)
@@ -361,16 +374,13 @@ print("Loaded musics:", musics.keys())
 click = pv.asset.Sound.from_variations("assets/audio/sounds", prefix="click_", extensions=[".wav"], volume=1.0, cooldown=0.2)
 pv.inputs.add_listener(pv.mouse.B_LEFT, click.play)
 
-"""
 pv.audio.play_music(musics.random(), loop=True, fade_s=2.0)
 pv.time.every(10.0, lambda: pv.audio.switch_music(musics.random(), loop=True, fade_s=2.0))
-"""
-
-player.entity.sound_emitter.play(musics.random())
 
 # ======================================== LIFE CYCLE ========================================
 def on_update(dt: float):
     """Boucle principale"""
+    player.update(dt)
     follower_update(dt)
 
 def on_draw():
