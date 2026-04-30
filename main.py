@@ -19,7 +19,7 @@ hh = H * 0.5
 
 # ======================================== SCENE ========================================
 camera = Camera(anchor=(0.5, 0.5), view_width=85, view_height=48)
-viewport = Viewport(position=(0.0, 0.0), width=1920, height=1080, origin=(0.5, 0.5), direction=(1.0, 1.0))
+viewport = Viewport(position=(0.0, 0.0), width=1920, height=1080, origin=(0.5, 0.5), x_direction=(1.0, 0.0), y_direction=(0.0, 1.0))
 main_scene = scene.Scene(camera=camera, viewport=viewport, stack_mode=scene.StackMode.PAUSE)
 scene.push(scene=main_scene)
 
