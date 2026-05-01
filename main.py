@@ -382,6 +382,7 @@ def on_update(dt: float):
     """Boucle principale"""
     player.update(dt)
     follower_update(dt)
+    print(pv.time.smooth_fps)
 
 def on_draw():
     """Boucle d'affichage"""
@@ -389,6 +390,15 @@ def on_draw():
     light_cone2.direction.normalize()
 
 # ======================================== LAUNCHING ========================================
-pv.preload()
-pv.time.target_fps = 900
-pv.run(on_update, on_draw)
+def run(profiling: bool = False):
+    """Lancement normal"""
+    pv.preload()
+    pv.time.target_fps = 900
+    if profiling:
+        from profiler import ProfiledRun
+        ProfiledRun(pv, on_update=on_update, on_draw=on_draw, frames=5000 ).run()
+    else:
+        pv.run(on_update, on_draw)
+
+if __name__ == "__main__":
+    run(profiling=True)
