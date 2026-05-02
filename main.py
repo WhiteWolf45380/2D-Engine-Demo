@@ -352,6 +352,30 @@ border.anchor = (0.5, 0.5)
 main_scene.add_layer(pv.scene.TileLayer(border), z=3)
 pv.tile.CollisionMapper(border).inject(main_world)
 
+# ======================================== GUI ========================================
+gui_layer = pv.scene.GuiLayer(camera=Camera())
+main_scene.add_layer(gui_layer, z=100)
+
+back_shape = pv.shape.RoundedRect(500, 300, 10)
+back_on = pv.gui.Surface(shape=back_shape, color=(0, 255, 0))
+back_off = pv.gui.Surface(shape=back_shape, color=(255, 0, 0))
+
+label_font = pv.asset.Font(size=16)
+label_text = pv.asset.Text("ON", font=label_font)
+label_on = pv.gui.Label(text=label_text, color=(1.0, 1.0, 1.0))
+label_off = pv.gui.Label(text=label_text, color=(0.0, 0.0, 0.0))
+
+border_on = pv.gui.Border(shape=back_shape, color=(0.0, 0.0, 0.0))
+border_off = pv.gui.Border(shape=back_shape, color=(0.0, 0.0, 1.0))
+
+back_on.add_child(label_on, z=1)
+back_on.add_child(border_on, z=5)
+back_off.add_child(label_off, z=1)
+back_off.add_child(border_off, z=5)
+
+toggle = pv.gui.ToggleButton(on_widget=back_on, off_widget=back_off)
+gui_layer.add(toggle)
+
 # ======================================== FX ========================================
 # Light
 light_layer = pv.scene.LightLayer(ambient=0.3, exposure=3.0)
@@ -382,7 +406,7 @@ def on_update(dt: float):
     """Boucle principale"""
     player.update(dt)
     follower_update(dt)
-    print(pv.time.smooth_fps)
+    # print(pv.time.smooth_fps)
 
 def on_draw():
     """Boucle d'affichage"""
@@ -401,4 +425,4 @@ def run(profiling: bool = False):
         pv.run(on_update, on_draw)
 
 if __name__ == "__main__":
-    run(profiling=True)
+    run(profiling=False)
