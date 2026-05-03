@@ -316,7 +316,7 @@ pv.inputs.add_listener(pv.key.K_L, switch_camlock)
 main_world.add_system(world.RenderSystem())
 main_world.add_system(world.PhysicsSystem())
 main_world.add_system(world.GravitySystem(pv.math.Vector(0.0, -9.8)))
-main_world.add_system(world.CollisionSystem(slop=0.025, iterations=6, max_position_correction=0.4, extra_iterations_threshold=0.2, restitution_threshold=0.05, restitution_max_velocity=0.5, vel_along_wake_treshold=0.02))
+main_world.add_system(world.CollisionSystem(slop=0.025, iterations=6, max_position_correction=0.4, extra_iterations_threshold=0.2, restitution_threshold=0.1, restitution_max_velocity=0.5, vel_along_wake_treshold=0.02))
 main_world.add_system(world.AnimationSystem())
 main_world.add_system(world.SteeringSystem())
 main_world.add_system(world.SoundSystem(origin=camera))
@@ -353,32 +353,37 @@ main_scene.add_layer(pv.scene.TileLayer(border), z=3)
 pv.tile.CollisionMapper(border).inject(main_world)
 
 # ======================================== GUI ========================================
-gui_layer = pv.scene.GuiLayer(camera=Camera())
+gui_layer = pv.scene.GuiLayer(camera=Camera(anchor=(1.0, 1.0)))
 main_scene.add_layer(gui_layer, z=100)
 
-back_shape = pv.shape.RoundedRect(500, 300, 10)
+back_shape = pv.shape.RoundedRect(150, 90, 15)
 back_on = pv.gui.Surface(shape=back_shape, color=(0, 255, 0))
 back_off = pv.gui.Surface(shape=back_shape, color=(255, 0, 0))
 
-label_font = pv.asset.Font(size=16)
-label_text = pv.asset.Text("ON", font=label_font)
-label_on = pv.gui.Label(text=label_text, color=(1.0, 1.0, 1.0))
-label_off = pv.gui.Label(text=label_text, color=(0.0, 0.0, 0.0))
+label_font = pv.asset.Font(size=32)
+label_on_text = pv.asset.Text("ON", font=label_font)
+label_on = pv.gui.Label(text=label_on_text, color=(0.0, 0.0, 0.0))
+label_off_text = pv.asset.Text("OFF", font=label_font)
+label_off = pv.gui.Label(text=label_off_text, color=(1.0, 1.0, 1.0))
 
-border_on = pv.gui.Border(shape=back_shape, color=(0.0, 0.0, 0.0))
-border_off = pv.gui.Border(shape=back_shape, color=(0.0, 0.0, 1.0))
+border_on = pv.gui.Border(shape=back_shape, width=3, color=(0.0, 0.0, 0.0))
+border_off = pv.gui.Border(shape=back_shape, width=3, color=(0.0, 0.0, 1.0))
 
 back_on.add_child(label_on, z=1)
 back_on.add_child(border_on, z=5)
 back_off.add_child(label_off, z=1)
 back_off.add_child(border_off, z=5)
 
-toggle = pv.gui.ToggleButton(on_widget=back_on, off_widget=back_off)
+toggle = pv.gui.ToggleButton(on_widget=back_on, off_widget=back_off, position=(screen.width * 0.1, screen.height * 0.1))
 gui_layer.add(toggle)
 
 # ======================================== FX ========================================
 # Light
-light_layer = pv.scene.LightLayer(ambient=0.3, exposure=3.0)
+light_layer = pv.scene.LightLayer(
+    pv.fx.Ambient(0.2, (0, 0, 30)),
+    gamma=1.0,
+    exposure=3.0,
+)
 main_scene.add_layer(light_layer, z=-1)
 
 light_layer.add_source(light_point := pv.fx.PointLight(position=player.entity.transform.position.copy(), radius=10, intensity=1.0, falloff=pv.math.easing.ease_out_bounce))
