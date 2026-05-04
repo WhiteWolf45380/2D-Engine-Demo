@@ -393,6 +393,15 @@ light_layer.add_source(light_cone0 := pv.fx.ConeLight(position=(20.0, 50.0), int
 light_layer.add_source(light_cone1 := pv.fx.ConeLight(position=(-20.0, 50.0), intensity=1.0, direction=(-1.0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
 light_layer.add_source(light_cone2 := pv.fx.ConeLight(position=(0.0, 50.0), intensity=1.0, direction=(0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
 
+# Particles
+particle_layer = pv.scene.ParticleLayer(
+    additive=True
+)
+main_scene.add_layer(particle_layer, z=5)
+
+particle = pv.fx.Particle(size=(0.1, 2), speed=(10, 30), size_end=0, color_start=(255, 0, 0), color_end=(255, 255, 0))
+particle_layer.add_emitter((point_emitter := pv.fx.ConeEmitter(position=(0.0, 0.0), particle=particle, rate=100, active=True)))
+
 # ======================================== AUDIO ========================================
 sounds = pv.audio.load_sounds("assets/audio/sounds", extensions=[".wav"], volume=1.0, cooldown=0.5)
 print("Loaded sounds:", sounds.keys())
@@ -411,7 +420,7 @@ def on_update(dt: float):
     """Boucle principale"""
     player.update(dt)
     follower_update(dt)
-    # print(pv.time.smooth_fps)
+    print(pv.time.smooth_fps)
 
 def on_draw():
     """Boucle d'affichage"""
