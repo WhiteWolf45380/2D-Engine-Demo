@@ -399,8 +399,17 @@ particle_layer = pv.scene.ParticleLayer(
 )
 main_scene.add_layer(particle_layer, z=5)
 
-particle = pv.fx.Particle(size=(0.1, 2), speed=(10, 30), size_end=0, color_start=(255, 0, 0), color_end=(255, 255, 0))
-particle_layer.add_emitter((point_emitter := pv.fx.ConeEmitter(position=(0.0, 0.0), particle=particle, rate=100, active=True)))
+particle = pv.fx.Particle(size=(0.6, 1.4), speed=(15, 20), size_end=0, color_start=(255, 0, 0), color_end=(255, 255, 0), lifetime=(0.6, 1.0), easing=pv.math.easing.linear)
+particle_layer.add_emitter((cone_emitter := pv.fx.ConeEmitter(position=(0.0, -30.0), particle=particle, rate=300, spread=20, active=True)))
+particle_layer.add_emitter((cone_emitter2 := pv.fx.ConeEmitter(position=(0.0, -30.0), particle=particle, rate=300, spread=20, active=True, direction=-90)))
+def ir():
+    global cone_emitter
+    cone_emitter.direction += 1
+    cone_emitter2.direction += 1
+pv.time.every(0.01, ir)
+
+particle_2 = pv.fx.Particle(lifetime=(10, 15), speed=(15, 20), size=(0.5, 1.0), size_end=0.2, color_start=(0, 0, 255), color_end=(255, 255, 255))
+line_emitter = particle_layer.add_emitter((line_emitter := pv.fx.LineEmitter(p1=(100, 50), p2=(-100, 50), normal=True, particle=particle_2, max_particles=5000, active=True, rate=100)))
 
 # ======================================== AUDIO ========================================
 sounds = pv.audio.load_sounds("assets/audio/sounds", extensions=[".wav"], volume=1.0, cooldown=0.5)
