@@ -316,7 +316,7 @@ pv.inputs.add_listener(pv.key.K_L, switch_camlock)
 main_world.add_system(world.RenderSystem())
 main_world.add_system(world.PhysicsSystem())
 main_world.add_system(world.GravitySystem(pv.math.Vector(0.0, -9.8)))
-main_world.add_system(world.CollisionSystem(slop=0.025, iterations=6, max_position_correction=0.4, extra_iterations_threshold=0.2, restitution_threshold=0.05, restitution_max_velocity=0.5, vel_along_wake_treshold=0.02))
+main_world.add_system(world.CollisionSystem(slop=0.025, iterations=6, max_position_correction=0.4, extra_iterations_threshold=0.2, restitution_threshold=0.1, restitution_max_velocity=0.5, vel_along_wake_treshold=0.02))
 main_world.add_system(world.AnimationSystem())
 main_world.add_system(world.SteeringSystem())
 main_world.add_system(world.SoundSystem(origin=camera))
@@ -352,9 +352,38 @@ border.anchor = (0.5, 0.5)
 main_scene.add_layer(pv.scene.TileLayer(border), z=3)
 pv.tile.CollisionMapper(border).inject(main_world)
 
+# ======================================== GUI ========================================
+gui_layer = pv.scene.GuiLayer(camera=Camera(anchor=(1.0, 1.0)))
+main_scene.add_layer(gui_layer, z=100)
+
+back_shape = pv.shape.RoundedRect(150, 90, 15)
+back_on = pv.gui.Surface(shape=back_shape, color=(0, 255, 0))
+back_off = pv.gui.Surface(shape=back_shape, color=(255, 0, 0))
+
+label_font = pv.asset.Font(size=32)
+label_on_text = pv.asset.Text("ON", font=label_font)
+label_on = pv.gui.Label(text=label_on_text, color=(0.0, 0.0, 0.0))
+label_off_text = pv.asset.Text("OFF", font=label_font)
+label_off = pv.gui.Label(text=label_off_text, color=(1.0, 1.0, 1.0))
+
+border_on = pv.gui.Border(shape=back_shape, width=3, color=(0.0, 0.0, 0.0))
+border_off = pv.gui.Border(shape=back_shape, width=3, color=(0.0, 0.0, 1.0))
+
+back_on.add_child(label_on, z=1)
+back_on.add_child(border_on, z=5)
+back_off.add_child(label_off, z=1)
+back_off.add_child(border_off, z=5)
+
+toggle = pv.gui.ToggleButton(on_widget=back_on, off_widget=back_off, position=(screen.width * 0.1, screen.height * 0.1))
+gui_layer.add(toggle)
+
 # ======================================== FX ========================================
 # Light
-light_layer = pv.scene.LightLayer(ambient=0.3, exposure=3.0)
+light_layer = pv.scene.LightLayer(
+    pv.fx.Ambient(0.2, (0, 0, 30)),
+    gamma=1.0,
+    exposure=3.0,
+)
 main_scene.add_layer(light_layer, z=-1)
 
 light_layer.add_source(light_point := pv.fx.PointLight(position=player.entity.transform.position.copy(), radius=10, intensity=1.0, falloff=pv.math.easing.ease_out_bounce))
@@ -364,6 +393,16 @@ light_layer.add_source(light_cone0 := pv.fx.ConeLight(position=(20.0, 50.0), int
 light_layer.add_source(light_cone1 := pv.fx.ConeLight(position=(-20.0, 50.0), intensity=1.0, direction=(-1.0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
 light_layer.add_source(light_cone2 := pv.fx.ConeLight(position=(0.0, 50.0), intensity=1.0, direction=(0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
 
+# Particles
+particle_layer = pv.scene.ParticleLayer(additive=True)
+main_scene.add_layer(particle_layer, z=5)
+
+particle_2 = pv.fx.Particle(lifetime=(8, 13), speed=(8, 13), size=(0.5, 1.0), size_end=0.2, color_start=(0, 0, 255), color_end=(255, 255, 255))
+particle_layer.add_emitter((line_emitter := pv.fx.LineEmitter(p1=(75, 50), p2=(-98, 50), normal=True, particle=particle_2, max_particles=5000, active=True, rate=100)))
+
+wind = pv.fx.Wind(direction=-45, strength=1, turbulence=10)
+line_emitter.add_modifier(wind)
+
 # ======================================== AUDIO ========================================
 sounds = pv.audio.load_sounds("assets/audio/sounds", extensions=[".wav"], volume=1.0, cooldown=0.5)
 print("Loaded sounds:", sounds.keys())
@@ -371,34 +410,47 @@ print("Loaded sounds:", sounds.keys())
 musics = pv.audio.load_musics("assets/audio/musics", extensions=[".ogg"], volume=1.0).preload()
 print("Loaded musics:", musics.keys())
 
+playlist = pv.asset.Playlist(musics.values_list())
+
 click = pv.asset.Sound.from_variations("assets/audio/sounds", prefix="click_", extensions=[".wav"], volume=1.0, cooldown=0.2)
 pv.inputs.add_listener(pv.mouse.B_LEFT, click.play)
 
 pv.audio.play_music(musics.random(), loop=True, fade_s=2.0)
 pv.time.every(10.0, lambda: pv.audio.switch_music(musics.random(), loop=True, fade_s=2.0))
 
+# ======================================== VIDEO ========================================
+video_layer = pv.scene.VideoLayer()
+main_scene.add_layer(video_layer, z=11)
+
+signature = pv.video.Video("assets/video/signature.mp4")
+player = pv.video.VideoPlayer((0, 0), 1600, 900)
+video_layer.add(player)
+player.play(signature)
+
 # ======================================== LIFE CYCLE ========================================
 def on_update(dt: float):
     """Boucle principale"""
     player.update(dt)
     follower_update(dt)
-    print(pv.time.smooth_fps)
 
 def on_draw():
     """Boucle d'affichage"""
-    light_cone2.direction.x = math.sin(pv.time.timer) * 0.5
+    light_cone2.direction.x = math.sin(pv.time.clock) * 0.5
     light_cone2.direction.normalize()
 
 # ======================================== LAUNCHING ========================================
-def run(profiling: bool = False):
-    """Lancement normal"""
+def init():
     pv.preload()
     pv.time.target_fps = 900
-    if profiling:
-        from profiler import ProfiledRun
-        ProfiledRun(pv, on_update=on_update, on_draw=on_draw, frames=5000 ).run()
-    else:
-        pv.run(on_update, on_draw)
+
+def run():
+    """Lancement normal"""
+    pv.run(on_update, on_draw)
+
+def profile(t: float):
+    """Lance un profiling"""
+    pv.profile(duration=t, on_update=on_update, on_draw=on_draw)
 
 if __name__ == "__main__":
-    run(profiling=False)
+    init()
+    run()
