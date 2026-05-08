@@ -394,22 +394,14 @@ light_layer.add_source(light_cone1 := pv.fx.ConeLight(position=(-20.0, 50.0), in
 light_layer.add_source(light_cone2 := pv.fx.ConeLight(position=(0.0, 50.0), intensity=1.0, direction=(0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
 
 # Particles
-particle_layer = pv.scene.ParticleLayer(
-    additive=True
-)
+particle_layer = pv.scene.ParticleLayer(additive=True)
 main_scene.add_layer(particle_layer, z=5)
 
-particle = pv.fx.Particle(size=(0.6, 1.4), speed=(15, 20), size_end=0, color_start=(255, 0, 0), color_end=(255, 255, 0), lifetime=(0.6, 1.0), easing=pv.math.easing.linear)
-particle_layer.add_emitter((cone_emitter := pv.fx.ConeEmitter(position=(0.0, -30.0), particle=particle, rate=300, spread=20, active=True)))
-particle_layer.add_emitter((cone_emitter2 := pv.fx.ConeEmitter(position=(0.0, -30.0), particle=particle, rate=300, spread=20, active=True, direction=-90)))
-def ir():
-    global cone_emitter
-    cone_emitter.direction += 1
-    cone_emitter2.direction += 1
-pv.time.every(0.01, ir)
+particle_2 = pv.fx.Particle(lifetime=(8, 13), speed=(8, 13), size=(0.5, 1.0), size_end=0.2, color_start=(0, 0, 255), color_end=(255, 255, 255))
+particle_layer.add_emitter((line_emitter := pv.fx.LineEmitter(p1=(75, 50), p2=(-98, 50), normal=True, particle=particle_2, max_particles=5000, active=True, rate=100)))
 
-particle_2 = pv.fx.Particle(lifetime=(10, 15), speed=(15, 20), size=(0.5, 1.0), size_end=0.2, color_start=(0, 0, 255), color_end=(255, 255, 255))
-line_emitter = particle_layer.add_emitter((line_emitter := pv.fx.LineEmitter(p1=(100, 50), p2=(-100, 50), normal=True, particle=particle_2, max_particles=5000, active=True, rate=100)))
+wind = pv.fx.Wind(direction=-45, strength=1, turbulence=10)
+line_emitter.add_modifier(wind)
 
 # ======================================== AUDIO ========================================
 sounds = pv.audio.load_sounds("assets/audio/sounds", extensions=[".wav"], volume=1.0, cooldown=0.5)
@@ -418,34 +410,40 @@ print("Loaded sounds:", sounds.keys())
 musics = pv.audio.load_musics("assets/audio/musics", extensions=[".ogg"], volume=1.0).preload()
 print("Loaded musics:", musics.keys())
 
+playlist = pv.asset.Playlist(musics.values_list())
+
 click = pv.asset.Sound.from_variations("assets/audio/sounds", prefix="click_", extensions=[".wav"], volume=1.0, cooldown=0.2)
 pv.inputs.add_listener(pv.mouse.B_LEFT, click.play)
 
 pv.audio.play_music(musics.random(), loop=True, fade_s=2.0)
 pv.time.every(10.0, lambda: pv.audio.switch_music(musics.random(), loop=True, fade_s=2.0))
 
+# ======================================== VIDEO ========================================
+
 # ======================================== LIFE CYCLE ========================================
 def on_update(dt: float):
     """Boucle principale"""
     player.update(dt)
     follower_update(dt)
-    print(pv.time.smooth_fps)
 
 def on_draw():
     """Boucle d'affichage"""
-    light_cone2.direction.x = math.sin(pv.time.timer) * 0.5
+    light_cone2.direction.x = math.sin(pv.time.clock) * 0.5
     light_cone2.direction.normalize()
 
 # ======================================== LAUNCHING ========================================
-def run(profiling: bool = False):
-    """Lancement normal"""
+def init():
     pv.preload()
     pv.time.target_fps = 900
-    if profiling:
-        from profiler import ProfiledRun
-        ProfiledRun(pv, on_update=on_update, on_draw=on_draw, frames=5000 ).run()
-    else:
-        pv.run(on_update, on_draw)
+
+def run():
+    """Lancement normal"""
+    pv.run(on_update, on_draw)
+
+def profile(t: float):
+    """Lance un profiling"""
+    pv.profile(duration=t, on_update=on_update, on_draw=on_draw)
 
 if __name__ == "__main__":
-    run(profiling=False)
+    init()
+    run()
