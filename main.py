@@ -401,4 +401,4 @@ def run(profiling: bool = False):
         pv.run(on_update, on_draw)
 
 if __name__ == "__main__":
-    run(profiling=True)
+    run(profiling=False)
