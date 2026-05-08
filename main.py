@@ -419,6 +419,13 @@ pv.audio.play_music(musics.random(), loop=True, fade_s=2.0)
 pv.time.every(10.0, lambda: pv.audio.switch_music(musics.random(), loop=True, fade_s=2.0))
 
 # ======================================== VIDEO ========================================
+video_layer = pv.scene.VideoLayer()
+main_scene.add_layer(video_layer, z=11)
+
+signature = pv.video.Video("assets/video/signature.mp4")
+player = pv.video.VideoPlayer((0, 0), 1600, 900)
+video_layer.add(player)
+player.play(signature)
 
 # ======================================== LIFE CYCLE ========================================
 def on_update(dt: float):
