@@ -316,10 +316,11 @@ pv.inputs.add_listener(pv.key.K_L, switch_camlock)
 main_world.add_system(world.RenderSystem())
 main_world.add_system(world.PhysicsSystem())
 main_world.add_system(world.GravitySystem(pv.math.Vector(0.0, -9.8)))
-main_world.add_system(world.CollisionSystem(slop=0.025, iterations=6, max_position_correction=0.4, extra_iterations_threshold=0.2, restitution_threshold=0.1, restitution_max_velocity=0.5, vel_along_wake_treshold=0.02))
+main_world.add_system(world.CollisionSystem(slop=0.025, iterations=6, max_position_correction=0.4, extra_iterations_threshold=0.2, restitution_threshold=0.2, restitution_max_velocity=0.5, vel_along_wake_treshold=0.02))
 main_world.add_system(world.AnimationSystem())
 main_world.add_system(world.SteeringSystem())
 main_world.add_system(world.SoundSystem(origin=camera))
+main_world.add_system(world.VideoSystem(origin=camera))
 
 # ======================================== MAP ========================================
 stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=1.5, tile_height=1.5)
@@ -395,10 +396,11 @@ light_layer.add_source(light_cone2 := pv.fx.ConeLight(position=(0.0, 50.0), inte
 
 # Particles
 particle_layer = pv.scene.ParticleLayer(additive=True)
+particle_layer.set_scissor(-88.5, -45, 177, 73.5)
 main_scene.add_layer(particle_layer, z=5)
 
 particle_2 = pv.fx.Particle(lifetime=(8, 13), speed=(8, 13), size=(0.5, 1.0), size_end=0.2, color_start=(0, 0, 255), color_end=(255, 255, 255))
-particle_layer.add_emitter((line_emitter := pv.fx.LineEmitter(p1=(75, 50), p2=(-98, 50), normal=True, particle=particle_2, max_particles=5000, active=True, rate=100)))
+particle_layer.add_emitter((line_emitter := pv.fx.LineEmitter(p1=(80, 50), p2=(-105, 50), normal=True, particle=particle_2, max_particles=5000, active=True, rate=120)))
 
 wind = pv.fx.Wind(direction=-45, strength=1, turbulence=10)
 line_emitter.add_modifier(wind)
@@ -419,13 +421,16 @@ pv.audio.play_music(musics.random(), loop=True, fade_s=2.0)
 pv.time.every(10.0, lambda: pv.audio.switch_music(musics.random(), loop=True, fade_s=2.0))
 
 # ======================================== VIDEO ========================================
-video_layer = pv.scene.VideoLayer()
-main_scene.add_layer(video_layer, z=11)
+signature = pv.asset.Video("assets/video/signature.mp4")
 
-signature = pv.video.Video("assets/video/signature.mp4")
-player = pv.video.VideoPlayer((0, 0), 1600, 900)
-video_layer.add(player)
-player.play(signature)
+video_entity = pv.world.Entity(
+    world.Transform(),
+    world.VideoPlayer(16, 9, inner_radius=20, outer_radius=50),
+)
+
+video_entity.video_player.load(signature)
+video_entity.video_player.play(loop=True)
+main_world.add_entity(video_entity)
 
 # ======================================== LIFE CYCLE ========================================
 def on_update(dt: float):

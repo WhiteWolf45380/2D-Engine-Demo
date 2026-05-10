@@ -8,11 +8,11 @@
     "file.lastUsedOpenFilter": "Tous les Fichiers (*)",
     "fileStates": {
         "maps/stage_0.tmx": {
-            "scale": 0.33,
+            "scale": 2,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 1228.787878787879,
-                "y": 1084.8484848484848
+                "x": 234.75,
+                "y": 410
             }
         },
         "tiles/Ground.tsx": {
