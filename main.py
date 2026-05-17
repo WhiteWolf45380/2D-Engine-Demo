@@ -424,8 +424,8 @@ pv.time.every(10.0, lambda: pv.audio.switch_music(musics.random(), loop=True, fa
 signature = pv.asset.Video("assets/video/signature.mp4")
 
 video_entity = pv.world.Entity(
-    world.Transform(),
-    world.VideoPlayer(16, 9, inner_radius=20, outer_radius=50),
+    world.Transform(position=(0.0, 15.0), anchor=(0.5, 0.5), scale=2.0, rotation=0),
+    world.VideoPlayer(16, 9, inner_radius=20, outer_radius=50, z=-1),
 )
 
 video_entity.video_player.load(signature)
