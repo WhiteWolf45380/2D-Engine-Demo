@@ -3,3 +3,6 @@ venv/
 
 *.tiled-project
 *.tiled-session
+
+dist/
+build/

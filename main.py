@@ -1,11 +1,35 @@
+# ======================================== README ========================================
+"""
+Ceci est un exemple d'environnement très basique afin d'exposer les possibilités qu'offre le moteur de jeu ``PyVerse2D``.
+La documentation du moteur n'est pas encore disponible, cet exemple permet donc d'en exposer les fondements.
+
+Afin d'installer le moteur:
+    Soit par pypi - éxécuter la commande 'pip install pyverse2d'
+    Soit par github - éxécuter la commande 'pip install https://github.com/WhiteWolf45380/PyVerse2D/archive/refs/heads/main.zip'
+
+Le repôt officiel du projet est disponible à l'adresse suivante:
+    https://github.com/WhiteWolf45380/PyVerse2D
+"""
+
 # ======================================== IMPORTS ========================================
 import pyverse2d as pv
 import pyverse2d.gui as gui
-from pyverse2d import Window, LogicalScreen, Viewport, Camera, time
+from pyverse2d import Window, LogicalScreen, Viewport, Camera
 from pyverse2d import world
 from pyverse2d import scene
 
 import math
+import sys
+from pathlib import Path
+
+# ======================================== UTILITAIRES ========================================
+def get_path(relative_path: str | Path) -> str:
+    """Obtention du chemin absolu d'un fichier"""
+    if getattr(sys, "frozen", False):
+        base_path = Path(sys._MEIPASS) / "pong"
+    else:
+        base_path = Path(__file__).resolve().parent
+    return str(base_path / relative_path)
 
 # ======================================== FENÊTRE ========================================
 screen = LogicalScreen()
@@ -27,7 +51,7 @@ main_world = world.World()
 world_layer = scene.WorldLayer(world=main_world)
 main_scene.add_layer(world_layer, z=0)
 
-# ======================================== PLAYER ========================================
+# ======================================== JOUEUR ========================================
 class Player:
     MOVE_FORCE = 2500.0
     AIR_MOVE_FORCE = 500.0
@@ -37,10 +61,11 @@ class Player:
     def __init__(self, world_, position):
         self._shape = pv.shape.Capsule(0.65, 4.3)
         img_height = self._shape.height * 96 / (96 - 38)
-        self._animation = pv.asset.Animation.from_folder("assets/", prefix="running", framerate=8, height=img_height)
+        self._animation = pv.asset.Animation.from_folder(get_path("assets/"), prefix="running", framerate=8, height=img_height)
         self._entity = world.Entity(
             world.Transform(position=position, anchor=(0.5, 0.0), rotation=0),
-            world.SpriteRenderer(image=pv.asset.Image("assets/idle_0.png", height=img_height), z=15),
+            world.SpriteRenderer(image=pv.asset.Image(get_path("assets/idle_0.png"), height=img_height), z=15),
+            world.TextRenderer(text=pv.asset.Text("Player", pv.asset.Font(size=0.8)), offset=(0.0, 5.0), color=(0, 150, 255), opacity=0.9),
             world.Animator(),
             world.Collider(shape=self._shape),
             world.RigidBody(mass=50.0, friction=0.35, restitution=0.2),
@@ -104,7 +129,7 @@ class Player:
             self.se.emit("footsteps")
 
     def _load_sounds(self) -> None:
-        footsteps = pv.asset.Sound.from_variations("assets/audio/sounds", "footstep_", cooldown=0.4, volume=2)
+        footsteps = pv.asset.Sound.from_variations(get_path("assets/audio/sounds"), "footstep_", cooldown=0.4, volume=2)
         self.se.register(footsteps, "footsteps")
 
 # ======================================== STRUCTURE ========================================
@@ -240,7 +265,7 @@ tri1.get(world.RigidBody).apply_force(pv.math.Vector(3000.0, 1000.0))
 player = Player(main_world, pv.math.Point(0.0, 10.0))
 
 follower_shape = pv.shape.Circle(1)
-follow_image = pv.asset.Image("assets/drone_0.png", height=2.5)
+follow_image = pv.asset.Image(get_path("assets/drone_0.png"), height=2.5)
 follower = world.Entity(
     world.Transform(position=(50, 0)),
     world.SpriteRenderer(image=follow_image),
@@ -354,6 +379,7 @@ main_scene.add_layer(pv.scene.TileLayer(border), z=3)
 pv.tile.CollisionMapper(border).inject(main_world)
 
 # ======================================== GUI ========================================
+# Layer Gui Viewport
 gui_layer = pv.scene.GuiLayer(camera=Camera(anchor=(1.0, 1.0)))
 main_scene.add_layer(gui_layer, z=100)
 
@@ -377,6 +403,18 @@ back_off.add_child(border_off, z=5)
 
 toggle = pv.gui.ToggleButton(on_widget=back_on, off_widget=back_off, position=(screen.width * 0.1, screen.height * 0.1))
 gui_layer.add(toggle)
+
+
+# Layer Gui Monde
+world_gui_layer = pv.scene.GuiLayer()
+main_scene.add_layer(world_gui_layer, z=-1)
+
+made_by = pv.gui.Label(
+    text = pv.asset.Text("Made by ÇaMériteBienDesPointsBonusNan...?", font=pv.asset.Font(size=3)),
+    position = (0.0, -30),
+)
+world_gui_layer.add(made_by)
+
 
 # ======================================== FX ========================================
 # Light
@@ -406,22 +444,22 @@ wind = pv.fx.Wind(direction=-45, strength=1, turbulence=10)
 line_emitter.add_modifier(wind)
 
 # ======================================== AUDIO ========================================
-sounds = pv.audio.load_sounds("assets/audio/sounds", extensions=[".wav"], volume=1.0, cooldown=0.5)
+sounds = pv.audio.load_sounds(get_path("assets/audio/sounds"), extensions=[".wav"], volume=1.0, cooldown=0.5)
 print("Loaded sounds:", sounds.keys())
 
-musics = pv.audio.load_musics("assets/audio/musics", extensions=[".ogg"], volume=1.0).preload()
+musics = pv.audio.load_musics(get_path("assets/audio/musics"), extensions=[".ogg"], volume=1.0).preload()
 print("Loaded musics:", musics.keys())
 
 playlist = pv.asset.Playlist(musics.values_list())
 
-click = pv.asset.Sound.from_variations("assets/audio/sounds", prefix="click_", extensions=[".wav"], volume=1.0, cooldown=0.2)
+click = pv.asset.Sound.from_variations(get_path("assets/audio/sounds"), prefix="click_", extensions=[".wav"], volume=1.0, cooldown=0.2)
 pv.inputs.add_listener(pv.mouse.B_LEFT, click.play)
 
 pv.audio.play_music(musics.random(), loop=True, fade_s=2.0)
 pv.time.every(10.0, lambda: pv.audio.switch_music(musics.random(), loop=True, fade_s=2.0))
 
 # ======================================== VIDEO ========================================
-signature = pv.asset.Video("assets/video/signature.mp4")
+signature = pv.asset.Video(get_path("assets/video/signature.mp4"))
 
 video_entity = pv.world.Entity(
     world.Transform(position=(0.0, 15.0), anchor=(0.5, 0.5), scale=2.0, rotation=0),
