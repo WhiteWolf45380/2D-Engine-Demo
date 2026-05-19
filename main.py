@@ -1,7 +1,6 @@
 # ======================================== README ========================================
 """
 Ceci est un exemple d'environnement très basique afin d'exposer les possibilités qu'offre le moteur de jeu ``PyVerse2D``.
-La documentation du moteur n'est pas encore disponible, cet exemple permet donc d'en exposer les fondements.
 
 Afin d'installer le moteur:
     Soit par pypi - éxécuter la commande 'pip install pyverse2d'
@@ -9,6 +8,11 @@ Afin d'installer le moteur:
 
 Le repôt officiel du projet est disponible à l'adresse suivante:
     https://github.com/WhiteWolf45380/PyVerse2D
+
+La présentation pypi du projet est disponible à l'adresse suivante:
+    https://pypi.org/project/pyverse2d/
+
+Une documentation plus complète y est disponible.
 """
 
 # ======================================== IMPORTS ========================================
