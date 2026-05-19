@@ -4,4 +4,5 @@ venv/Scripts/python.exe -m PyInstaller `
 --clean `
 --noupx `
 --add-data "assets;assets" `
+--add-data "map;map" `
 main.py

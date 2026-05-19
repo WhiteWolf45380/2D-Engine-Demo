@@ -13,7 +13,6 @@ Le repôt officiel du projet est disponible à l'adresse suivante:
 
 # ======================================== IMPORTS ========================================
 import pyverse2d as pv
-import pyverse2d.gui as gui
 from pyverse2d import Window, LogicalScreen, Viewport, Camera
 from pyverse2d import world
 from pyverse2d import scene
@@ -348,22 +347,22 @@ main_world.add_system(world.SoundSystem(origin=camera))
 main_world.add_system(world.VideoSystem(origin=camera))
 
 # ======================================== MAP ========================================
-stage_0 = pv.tile.MapLoader.from_tiled_tmx("map/maps/stage_0.tmx", tile_width=1.5, tile_height=1.5)
+stage_0 = pv.tile.MapLoader.from_tiled_tmx(get_path("map/maps/stage_0.tmx"), tile_width=1.5, tile_height=1.5)
 
 # Background
 background = stage_0["background"]
 background.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(background, camera=(background_camera := Camera.derived_from(camera, parallax_x=0.3)), clip_camera=camera), z=-2)
+main_scene.add_layer(pv.scene.TileLayer(background, camera=(background_camera := Camera.derived_from(camera, parallax_x=0.3)), clip_camera=camera), z=-4)
 
 # Parallax
 parallax = stage_0["parallax"]
 parallax.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(parallax, camera=(parallax_camera := Camera.derived_from(camera, parallax_x=0.6)), clip_camera=camera), z=-1)
+main_scene.add_layer(pv.scene.TileLayer(parallax, camera=(parallax_camera := Camera.derived_from(camera, parallax_x=0.6)), clip_camera=camera), z=-3)
 
 # Ground
 ground = stage_0["ground"]
 ground.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(ground), z=1)
+main_scene.add_layer(pv.scene.TileLayer(ground), z=4)
 pv.tile.CollisionMapper(ground).inject(main_world)
 
 # Foreground
@@ -375,7 +374,7 @@ pv.tile.CollisionMapper(foreground).inject(main_world)
 # Bordure
 border = stage_0["border"]
 border.anchor = (0.5, 0.5)
-main_scene.add_layer(pv.scene.TileLayer(border), z=3)
+main_scene.add_layer(pv.scene.TileLayer(border), z=5)
 pv.tile.CollisionMapper(border).inject(main_world)
 
 # ======================================== GUI ========================================
@@ -423,19 +422,19 @@ light_layer = pv.scene.LightLayer(
     gamma=1.0,
     exposure=3.0,
 )
-main_scene.add_layer(light_layer, z=-1)
+main_scene.add_layer(light_layer, z=3)
 
 light_layer.add_source(light_point := pv.fx.PointLight(position=player.entity.transform.position.copy(), radius=10, intensity=1.0, falloff=pv.math.easing.ease_out_bounce))
 light_point.attach_to(player.entity.transform, offset=(0,  2))
 
-light_layer.add_source(light_cone0 := pv.fx.ConeLight(position=(20.0, 50.0), intensity=1.0, direction=(1.0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
-light_layer.add_source(light_cone1 := pv.fx.ConeLight(position=(-20.0, 50.0), intensity=1.0, direction=(-1.0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
-light_layer.add_source(light_cone2 := pv.fx.ConeLight(position=(0.0, 50.0), intensity=1.0, direction=(0, -2.0), radius=0.0, angle=15, softness=1.0, falloff=None))
+light_layer.add_source(light_cone0 := pv.fx.ConeLight(position=(20.0, 50.0), intensity=1.0, direction=(1.0, -2.0), radius=0.0, angle=13, softness=1.0, falloff=None))
+light_layer.add_source(light_cone1 := pv.fx.ConeLight(position=(-20.0, 50.0), intensity=1.0, direction=(-1.0, -2.0), radius=0.0, angle=13, softness=1.0, falloff=None))
+light_layer.add_source(light_cone2 := pv.fx.ConeLight(position=(0.0, 50.0), intensity=1.0, direction=(0, -2.0), radius=0.0, angle=13, softness=1.0, falloff=None))
 
 # Particles
 particle_layer = pv.scene.ParticleLayer(additive=True)
 particle_layer.set_scissor(-88.5, -45, 177, 73.5)
-main_scene.add_layer(particle_layer, z=5)
+main_scene.add_layer(particle_layer, z=-1)
 
 particle_2 = pv.fx.Particle(lifetime=(8, 13), speed=(8, 13), size=(0.5, 1.0), size_end=0.2, color_start=(0, 0, 255), color_end=(255, 255, 255))
 particle_layer.add_emitter((line_emitter := pv.fx.LineEmitter(p1=(80, 50), p2=(-105, 50), normal=True, particle=particle_2, max_particles=5000, active=True, rate=120)))
@@ -459,16 +458,23 @@ pv.audio.play_music(musics.random(), loop=True, fade_s=2.0)
 pv.time.every(10.0, lambda: pv.audio.switch_music(musics.random(), loop=True, fade_s=2.0))
 
 # ======================================== VIDEO ========================================
+video_world = pv.world.World()
+video_layer = pv.scene.WorldLayer(video_world)
+main_scene.add_layer(video_layer, z=-2)
+
+video_world.add_system(world.RenderSystem())
+video_world.add_system(world.VideoSystem(camera))
+
 signature = pv.asset.Video(get_path("assets/video/signature.mp4"))
 
 video_entity = pv.world.Entity(
-    world.Transform(position=(0.0, 15.0), anchor=(0.5, 0.5), scale=2.0, rotation=0),
+    world.Transform(position=(0.0, 15.0), anchor=(0.5, 0.5), scale=1.8, rotation=0),
     world.VideoPlayer(16, 9, inner_radius=20, outer_radius=50, z=-1),
 )
 
 video_entity.video_player.load(signature)
 video_entity.video_player.play(loop=True)
-main_world.add_entity(video_entity)
+video_world.add_entity(video_entity)
 
 # ======================================== LIFE CYCLE ========================================
 def on_update(dt: float):
